@@ -1,15 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type { BarrioStats, Inmueble, InmueblesResponse } from "@/lib/inmuebles";
 import { MapView } from "@/components/MapView";
-import { SidebarFilters } from "@/components/SidebarFilters";
 import { StatsPanel } from "@/components/StatsPanel";
 
 type State = {
   inmuebles: Inmueble[];
   barrios: BarrioStats[];
-  selectedBarrios: string[];
   loading: boolean;
   error: string | null;
 };
@@ -17,7 +15,6 @@ type State = {
 const initialState: State = {
   inmuebles: [],
   barrios: [],
-  selectedBarrios: [],
   loading: true,
   error: null,
 };
@@ -60,14 +57,6 @@ export default function Home() {
     };
   }, []);
 
-  const filteredInmuebles = useMemo(() => {
-    if (!state.selectedBarrios.length) return state.inmuebles;
-    const set = new Set(state.selectedBarrios);
-    return state.inmuebles.filter((i) =>
-      i.barrio ? set.has(i.barrio) : set.has("Sin barrio")
-    );
-  }, [state.inmuebles, state.selectedBarrios]);
-
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 text-zinc-50">
       <main className="flex min-h-screen flex-1 flex-col gap-4 px-4 py-4 md:px-6 md:py-6">
@@ -96,17 +85,11 @@ export default function Home() {
 
         <section className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-[minmax(260px,320px)_minmax(0,1fr)]">
           <div className="flex flex-col gap-3">
-            <SidebarFilters
-              barrios={state.barrios}
-              onSelectionChange={(selectedBarrios) =>
-                setState((prev) => ({ ...prev, selectedBarrios }))
-              }
-            />
-            <StatsPanel inmuebles={filteredInmuebles} barrios={state.barrios} />
+            <StatsPanel inmuebles={state.inmuebles} barrios={state.barrios} />
           </div>
 
           <div className="h-[420px] md:h-auto">
-            <MapView inmuebles={filteredInmuebles} />
+            <MapView inmuebles={state.inmuebles} />
           </div>
         </section>
       </main>

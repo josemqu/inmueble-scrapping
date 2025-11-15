@@ -11,6 +11,7 @@ export type RawInmueble = {
   barrio_nombre: string | null;
   casa_sup_cubierta?: string | null;
   casa_sup_terreno?: string | null;
+  casa_ambientes?: number | null;
 };
 
 export type Inmueble = {
@@ -19,9 +20,14 @@ export type Inmueble = {
   lat: number;
   lng: number;
   priceUsd: number;
+  // Raw areas
+  areaCubiertaM2: number | null;
+  areaTerrenoM2: number | null;
+  // Weighted area used for pricePerM2 calculations
   areaM2: number | null;
   pricePerM2: number | null;
   barrio: string | null;
+  ambientes: number | null;
 };
 
 export type BarrioStats = {
@@ -57,11 +63,28 @@ export function mapRawToInmueble(raw: RawInmueble): Inmueble | null {
     ? parseFloat(raw.casa_sup_terreno)
     : NaN;
 
-  const areaCandidates = [supCubierta, supTerreno].filter(
-    (v) => Number.isFinite(v) && v > 0
-  ) as number[];
+  const hasCubierta = Number.isFinite(supCubierta) && supCubierta > 0;
+  const hasTerreno = Number.isFinite(supTerreno) && supTerreno > 0;
 
-  const areaM2 = areaCandidates.length > 0 ? areaCandidates[0] : null;
+  // Weighted "equivalent" area:
+  // - covered m² at full weight
+  // - uncovered m² (terrain - covered) at a lower weight
+  let areaM2: number | null = null;
+  if (hasCubierta || hasTerreno) {
+    const cubierta = hasCubierta ? supCubierta : 0;
+    const terrenoTotal = hasTerreno ? supTerreno : 0;
+    const descubierta = Math.max(terrenoTotal - cubierta, 0);
+
+    const pesoCubierta = 1.0;
+    const pesoDescubierta = 0.3;
+
+    const equivalente = pesoCubierta * cubierta + pesoDescubierta * descubierta;
+
+    areaM2 = equivalente > 0 ? equivalente : null;
+  } else {
+    areaM2 = null;
+  }
+
   const pricePerM2 = areaM2 && areaM2 > 0 ? priceUsd / areaM2 : null;
 
   return {
@@ -70,9 +93,16 @@ export function mapRawToInmueble(raw: RawInmueble): Inmueble | null {
     lat: raw.latitud,
     lng: raw.longitud,
     priceUsd,
+    areaCubiertaM2: hasCubierta ? supCubierta : null,
+    areaTerrenoM2: hasTerreno ? supTerreno : null,
     areaM2,
     pricePerM2,
     barrio: raw.barrio_nombre ?? null,
+    ambientes:
+      typeof raw.casa_ambientes === "number" &&
+      Number.isFinite(raw.casa_ambientes)
+        ? raw.casa_ambientes
+        : null,
   };
 }
 
