@@ -260,7 +260,7 @@ export default function Home() {
 
           <div className="relative z-0 h-full min-h-[320px]">
             <div className="pointer-events-none absolute inset-0 z-[9999] flex items-start justify-end p-3 md:p-4">
-              <div className="pointer-events-auto flex flex-col items-end gap-2">
+              <div className="pointer-events-auto flex flex-col items-end gap-3">
                 <button
                   type="button"
                   className="rounded-full border border-zinc-700 bg-zinc-900/80 px-3 py-1 text-[10px] font-medium text-zinc-200 shadow-md hover:border-emerald-400 hover:text-emerald-300"
@@ -270,17 +270,17 @@ export default function Home() {
                 </button>
 
                 {filtersOpen && (
-                  <div className="w-full max-w-md rounded-xl border border-zinc-800 bg-zinc-950/90 p-3 text-[11px] text-zinc-300 shadow-xl backdrop-blur">
-                    <div className="flex flex-col gap-2">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+                  <div className="w-full max-w-xl rounded-2xl border border-zinc-800 bg-zinc-950/95 p-4 text-[11px] text-zinc-300 shadow-xl backdrop-blur">
+                    <div className="flex flex-col gap-3">
+                      <div className="flex w-full flex-nowrap items-center gap-2 md:gap-3">
+                        <span className="w-40 shrink-0 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
                           Filtro precio / m²
                         </span>
                         <input
                           type="number"
                           inputMode="decimal"
                           placeholder="Mín"
-                          className="w-20 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
+                          className="w-24 flex-none rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
                           value={state.pricePerM2Min ?? ""}
                           onChange={(e) => {
                             const v = parseFloat(e.target.value);
@@ -290,12 +290,12 @@ export default function Home() {
                             }));
                           }}
                         />
-                        <span>–</span>
+                        <span className="shrink-0">–</span>
                         <input
                           type="number"
                           inputMode="decimal"
                           placeholder="Máx"
-                          className="w-20 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
+                          className="w-24 flex-none rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
                           value={state.pricePerM2Max ?? ""}
                           onChange={(e) => {
                             const v = parseFloat(e.target.value);
@@ -307,7 +307,8 @@ export default function Home() {
                         />
                         <button
                           type="button"
-                          className="rounded-full border border-zinc-700 px-3 py-1 text-[10px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
+                          aria-label="Limpiar filtro precio por metro cuadrado"
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-zinc-700 text-[12px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
                           onClick={() =>
                             setState((prev) => ({
                               ...prev,
@@ -316,12 +317,12 @@ export default function Home() {
                             }))
                           }
                         >
-                          Limpiar
+                          ×
                         </button>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+                      <div className="flex w-full flex-nowrap items-center gap-2 md:gap-3">
+                        <span className="w-40 shrink-0 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
                           Antigüedad máx. (días)
                         </span>
                         <input
@@ -340,7 +341,8 @@ export default function Home() {
                         />
                         <button
                           type="button"
-                          className="rounded-full border border-zinc-700 px-3 py-1 text-[10px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
+                          aria-label="Limpiar filtro de antigüedad máxima"
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-zinc-700 text-[12px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
                           onClick={() =>
                             setState((prev) => ({
                               ...prev,
@@ -348,12 +350,12 @@ export default function Home() {
                             }))
                           }
                         >
-                          Limpiar
+                          ×
                         </button>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+                      <div className="flex w-full flex-nowrap items-center gap-2 md:gap-3">
+                        <span className="w-40 shrink-0 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
                           Sup. terreno (m²)
                         </span>
                         <input
@@ -387,7 +389,8 @@ export default function Home() {
                         />
                         <button
                           type="button"
-                          className="rounded-full border border-zinc-700 px-3 py-1 text-[10px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
+                          aria-label="Limpiar filtro de superficie de terreno"
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-zinc-700 text-[12px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
                           onClick={() =>
                             setState((prev) => ({
                               ...prev,
@@ -396,12 +399,12 @@ export default function Home() {
                             }))
                           }
                         >
-                          Limpiar
+                          ×
                         </button>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+                      <div className="flex w-full flex-nowrap items-center gap-2 md:gap-3">
+                        <span className="w-40 shrink-0 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
                           Precio total
                         </span>
                         <input
@@ -435,7 +438,8 @@ export default function Home() {
                         />
                         <button
                           type="button"
-                          className="rounded-full border border-zinc-700 px-3 py-1 text-[10px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
+                          aria-label="Limpiar filtro de precio total"
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-zinc-700 text-[12px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
                           onClick={() =>
                             setState((prev) => ({
                               ...prev,
@@ -444,11 +448,11 @@ export default function Home() {
                             }))
                           }
                         >
-                          Limpiar
+                          ×
                         </button>
                       </div>
 
-                      <div>
+                      <div className="mt-1 text-[10px] text-zinc-500">
                         {state.loading && <span>Cargando inmuebles…</span>}
                         {!state.loading && state.error && (
                           <span className="text-amber-400">{state.error}</span>
