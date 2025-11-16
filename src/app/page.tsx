@@ -18,6 +18,10 @@ type State = {
   error: string | null;
   pricePerM2Min: number | null;
   pricePerM2Max: number | null;
+  priceTotalMin: number | null;
+  priceTotalMax: number | null;
+  areaTerrenoMin: number | null;
+  areaTerrenoMax: number | null;
 };
 
 const initialState: State = {
@@ -27,6 +31,10 @@ const initialState: State = {
   error: null,
   pricePerM2Min: null,
   pricePerM2Max: null,
+  priceTotalMin: null,
+  priceTotalMax: null,
+  areaTerrenoMin: null,
+  areaTerrenoMax: null,
 };
 
 export default function Home() {
@@ -66,6 +74,66 @@ export default function Home() {
       cancelled = true;
     };
   }, []);
+
+  const filteredInmuebles =
+    state.pricePerM2Min == null &&
+    state.pricePerM2Max == null &&
+    state.priceTotalMin == null &&
+    state.priceTotalMax == null &&
+    state.areaTerrenoMin == null &&
+    state.areaTerrenoMax == null
+      ? state.inmuebles
+      : state.inmuebles.filter((i) => {
+          if (i.pricePerM2 == null || !Number.isFinite(i.pricePerM2)) {
+            if (state.pricePerM2Min != null || state.pricePerM2Max != null) {
+              return false;
+            }
+          }
+
+          if (
+            state.pricePerM2Min != null &&
+            (i.pricePerM2 == null || i.pricePerM2 < state.pricePerM2Min)
+          ) {
+            return false;
+          }
+
+          if (
+            state.pricePerM2Max != null &&
+            (i.pricePerM2 == null || i.pricePerM2 > state.pricePerM2Max)
+          ) {
+            return false;
+          }
+
+          if (state.priceTotalMin != null && i.priceUsd < state.priceTotalMin) {
+            return false;
+          }
+
+          if (state.priceTotalMax != null && i.priceUsd > state.priceTotalMax) {
+            return false;
+          }
+
+          if (state.areaTerrenoMin != null || state.areaTerrenoMax != null) {
+            if (i.areaTerrenoM2 == null || !Number.isFinite(i.areaTerrenoM2)) {
+              return false;
+            }
+
+            if (
+              state.areaTerrenoMin != null &&
+              i.areaTerrenoM2 < state.areaTerrenoMin
+            ) {
+              return false;
+            }
+
+            if (
+              state.areaTerrenoMax != null &&
+              i.areaTerrenoM2 > state.areaTerrenoMax
+            ) {
+              return false;
+            }
+          }
+
+          return true;
+        });
 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 text-zinc-50">
@@ -128,6 +196,100 @@ export default function Home() {
                 Limpiar
               </button>
             </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+                Sup. terreno (m²)
+              </span>
+              <input
+                type="number"
+                inputMode="decimal"
+                placeholder="Mín"
+                className="w-24 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
+                value={state.areaTerrenoMin ?? ""}
+                onChange={(e) => {
+                  const v = parseFloat(e.target.value);
+                  setState((prev) => ({
+                    ...prev,
+                    areaTerrenoMin: Number.isNaN(v) ? null : v,
+                  }));
+                }}
+              />
+              <span>–</span>
+              <input
+                type="number"
+                inputMode="decimal"
+                placeholder="Máx"
+                className="w-24 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
+                value={state.areaTerrenoMax ?? ""}
+                onChange={(e) => {
+                  const v = parseFloat(e.target.value);
+                  setState((prev) => ({
+                    ...prev,
+                    areaTerrenoMax: Number.isNaN(v) ? null : v,
+                  }));
+                }}
+              />
+              <button
+                type="button"
+                className="rounded-full border border-zinc-700 px-3 py-1 text-[10px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
+                onClick={() =>
+                  setState((prev) => ({
+                    ...prev,
+                    areaTerrenoMin: null,
+                    areaTerrenoMax: null,
+                  }))
+                }
+              >
+                Limpiar
+              </button>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+                Precio total
+              </span>
+              <input
+                type="number"
+                inputMode="decimal"
+                placeholder="Mín"
+                className="w-24 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
+                value={state.priceTotalMin ?? ""}
+                onChange={(e) => {
+                  const v = parseFloat(e.target.value);
+                  setState((prev) => ({
+                    ...prev,
+                    priceTotalMin: Number.isNaN(v) ? null : v,
+                  }));
+                }}
+              />
+              <span>–</span>
+              <input
+                type="number"
+                inputMode="decimal"
+                placeholder="Máx"
+                className="w-24 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
+                value={state.priceTotalMax ?? ""}
+                onChange={(e) => {
+                  const v = parseFloat(e.target.value);
+                  setState((prev) => ({
+                    ...prev,
+                    priceTotalMax: Number.isNaN(v) ? null : v,
+                  }));
+                }}
+              />
+              <button
+                type="button"
+                className="rounded-full border border-zinc-700 px-3 py-1 text-[10px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
+                onClick={() =>
+                  setState((prev) => ({
+                    ...prev,
+                    priceTotalMin: null,
+                    priceTotalMax: null,
+                  }))
+                }
+              >
+                Limpiar
+              </button>
+            </div>
             <div>
               {state.loading && <span>Cargando inmuebles…</span>}
               {!state.loading && state.error && (
@@ -145,62 +307,12 @@ export default function Home() {
         <section className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-[minmax(260px,320px)_minmax(0,1fr)]">
           <div className="flex flex-col gap-3">
             <StatsPanel inmuebles={state.inmuebles} barrios={state.barrios} />
-            <PricePerM2Histogram
-              inmuebles={
-                state.pricePerM2Min == null && state.pricePerM2Max == null
-                  ? state.inmuebles
-                  : state.inmuebles.filter((i) => {
-                      if (
-                        i.pricePerM2 == null ||
-                        !Number.isFinite(i.pricePerM2)
-                      ) {
-                        return false;
-                      }
-                      if (
-                        state.pricePerM2Min != null &&
-                        i.pricePerM2 < state.pricePerM2Min
-                      ) {
-                        return false;
-                      }
-                      if (
-                        state.pricePerM2Max != null &&
-                        i.pricePerM2 > state.pricePerM2Max
-                      ) {
-                        return false;
-                      }
-                      return true;
-                    })
-              }
-            />
+            <PricePerM2Histogram inmuebles={filteredInmuebles} />
           </div>
 
           <div className="h-full min-h-[320px]">
             <MapView
-              inmuebles={
-                state.pricePerM2Min == null && state.pricePerM2Max == null
-                  ? state.inmuebles
-                  : state.inmuebles.filter((i) => {
-                      if (
-                        i.pricePerM2 == null ||
-                        !Number.isFinite(i.pricePerM2)
-                      ) {
-                        return false;
-                      }
-                      if (
-                        state.pricePerM2Min != null &&
-                        i.pricePerM2 < state.pricePerM2Min
-                      ) {
-                        return false;
-                      }
-                      if (
-                        state.pricePerM2Max != null &&
-                        i.pricePerM2 > state.pricePerM2Max
-                      ) {
-                        return false;
-                      }
-                      return true;
-                    })
-              }
+              inmuebles={filteredInmuebles}
               pricePerM2Min={state.pricePerM2Min}
               pricePerM2Max={state.pricePerM2Max}
             />
