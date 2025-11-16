@@ -12,6 +12,8 @@ export type RawInmueble = {
   casa_sup_cubierta?: string | null;
   casa_sup_terreno?: string | null;
   casa_ambientes?: number | null;
+  fecha_creacion?: string | null;
+  last_update?: string | null;
 };
 
 export type Inmueble = {
@@ -28,6 +30,8 @@ export type Inmueble = {
   pricePerM2: number | null;
   barrio: string | null;
   ambientes: number | null;
+  createdAt: Date | null;
+  lastUpdate: Date | null;
 };
 
 export type BarrioStats = {
@@ -87,6 +91,9 @@ export function mapRawToInmueble(raw: RawInmueble): Inmueble | null {
 
   const pricePerM2 = areaM2 && areaM2 > 0 ? priceUsd / areaM2 : null;
 
+  const createdAt = raw.fecha_creacion ? new Date(raw.fecha_creacion) : null;
+  const lastUpdate = raw.last_update ? new Date(raw.last_update) : null;
+
   return {
     id: raw.id,
     title: raw.titulo,
@@ -103,6 +110,8 @@ export function mapRawToInmueble(raw: RawInmueble): Inmueble | null {
       Number.isFinite(raw.casa_ambientes)
         ? raw.casa_ambientes
         : null,
+    createdAt,
+    lastUpdate,
   };
 }
 

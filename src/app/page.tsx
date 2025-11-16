@@ -22,6 +22,7 @@ type State = {
   priceTotalMax: number | null;
   areaTerrenoMin: number | null;
   areaTerrenoMax: number | null;
+  maxAgeDays: number | null;
 };
 
 type HistogramRange = { min: number; max: number };
@@ -40,6 +41,7 @@ const initialState: State = {
   priceTotalMax: null,
   areaTerrenoMin: null,
   areaTerrenoMax: null,
+  maxAgeDays: null,
 };
 
 export default function Home() {
@@ -98,6 +100,7 @@ export default function Home() {
           priceTotalMax: parsed.priceTotalMax ?? prev.priceTotalMax,
           areaTerrenoMin: parsed.areaTerrenoMin ?? prev.areaTerrenoMin,
           areaTerrenoMax: parsed.areaTerrenoMax ?? prev.areaTerrenoMax,
+          maxAgeDays: parsed.maxAgeDays ?? prev.maxAgeDays,
         }));
       }
 
@@ -121,6 +124,7 @@ export default function Home() {
         priceTotalMax: state.priceTotalMax,
         areaTerrenoMin: state.areaTerrenoMin,
         areaTerrenoMax: state.areaTerrenoMax,
+        maxAgeDays: state.maxAgeDays,
       };
 
       window.localStorage.setItem(
@@ -141,6 +145,7 @@ export default function Home() {
     state.priceTotalMax,
     state.areaTerrenoMin,
     state.areaTerrenoMax,
+    state.maxAgeDays,
     filtersOpen,
   ]);
 
@@ -150,9 +155,33 @@ export default function Home() {
     state.priceTotalMin == null &&
     state.priceTotalMax == null &&
     state.areaTerrenoMin == null &&
-    state.areaTerrenoMax == null
+    state.areaTerrenoMax == null &&
+    state.maxAgeDays == null
       ? state.inmuebles
       : state.inmuebles.filter((i) => {
+          if (state.maxAgeDays != null && state.maxAgeDays > 0) {
+            const referenceDate = i.lastUpdate ?? i.createdAt;
+            // Si no hay fecha, no aplicamos el filtro de antigüedad a este inmueble
+            if (referenceDate) {
+              const refDateObj =
+                referenceDate instanceof Date
+                  ? referenceDate
+                  : new Date(referenceDate as unknown as string);
+
+              // Si la fecha no es válida, no aplicamos el filtro de antigüedad
+              if (!Number.isNaN(refDateObj.getTime())) {
+                const now = new Date();
+                const cutoff = new Date(
+                  now.getTime() - state.maxAgeDays * 24 * 60 * 60 * 1000
+                );
+
+                if (refDateObj < cutoff) {
+                  return false;
+                }
+              }
+            }
+          }
+
           if (i.pricePerM2 == null || !Number.isFinite(i.pricePerM2)) {
             if (state.pricePerM2Min != null || state.pricePerM2Max != null) {
               return false;
@@ -284,6 +313,38 @@ export default function Home() {
                               ...prev,
                               pricePerM2Min: null,
                               pricePerM2Max: null,
+                            }))
+                          }
+                        >
+                          Limpiar
+                        </button>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+                          Antigüedad máx. (días)
+                        </span>
+                        <input
+                          type="number"
+                          inputMode="decimal"
+                          placeholder="Ej: 90"
+                          className="w-24 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
+                          value={state.maxAgeDays ?? ""}
+                          onChange={(e) => {
+                            const v = parseFloat(e.target.value);
+                            setState((prev) => ({
+                              ...prev,
+                              maxAgeDays: Number.isNaN(v) ? null : v,
+                            }));
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="rounded-full border border-zinc-700 px-3 py-1 text-[10px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
+                          onClick={() =>
+                            setState((prev) => ({
+                              ...prev,
+                              maxAgeDays: null,
                             }))
                           }
                         >
