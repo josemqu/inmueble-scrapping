@@ -24,3 +24,33 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Leaflet popup: make wrapper transparent so only inner card is visible */
+.leaflet-popup {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.leaflet-popup-content-wrapper {
+  padding: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+}
+
+/* Tip under the popup */
+.leaflet-popup-tip-container {
+  background: transparent !important;
+}
+
+.leaflet-popup-tip {
+  background: #020617 !important; /* dark to match the card */
+  box-shadow: none !important;
+  border: none !important;
+}

@@ -141,28 +141,28 @@ export function MapView({
               remove: () => setActiveId(null),
             }}
           >
-            <div className="w-64 space-y-2 text-xs text-zinc-100">
-              <div className="space-y-0.5">
-                <div className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400">
+            <div className="w-100 max-w-xs rounded-lg bg-zinc-950/95 p-3 shadow-xl ring-1 ring-zinc-800">
+              <div className="space-y-1">
+                <div className="text-[11px] font-medium uppercase tracking-wide text-zinc-400">
                   {active.barrio ?? "Sin barrio"}
                 </div>
-                <div className="text-sm font-semibold leading-tight text-zinc-50">
+                <div className="text-sm font-semibold leading-snug text-zinc-50">
                   {active.title}
                 </div>
               </div>
 
-              <div className="space-y-1.5 rounded-2xl bg-zinc-900/80 p-2">
-                <div className="flex items-center justify-between gap-2">
+              <div className="mt-3 space-y-3 text-[11px] text-zinc-300">
+                <div className="flex items-start justify-between gap-3">
                   <div className="space-y-0.5">
-                    <div className="text-[10px] font-medium text-zinc-400">
+                    <div className="text-[11px] font-medium text-zinc-400">
                       Precio
                     </div>
-                    <div className="text-sm font-semibold text-zinc-50">
+                    <div className="text-base font-semibold text-zinc-50">
                       US$ {active.priceUsd.toLocaleString()}
                     </div>
                   </div>
                   <div className="space-y-0.5 text-right">
-                    <div className="text-[10px] font-medium text-zinc-400">
+                    <div className="text-[11px] font-medium text-zinc-400">
                       Precio / m² (ponderado)
                     </div>
                     <div className="text-sm font-semibold text-emerald-400">
@@ -173,9 +173,9 @@ export function MapView({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 text-[11px]">
+                <div className="grid grid-cols-3 gap-3 border-t border-zinc-800 pt-2">
                   <div className="space-y-0.5">
-                    <div className="text-[10px] font-medium text-zinc-400">
+                    <div className="text-[10px] font-medium text-zinc-500">
                       Sup. cubierta
                     </div>
                     <div className="font-semibold text-zinc-50">
@@ -185,7 +185,7 @@ export function MapView({
                     </div>
                   </div>
                   <div className="space-y-0.5">
-                    <div className="text-[10px] font-medium text-zinc-400">
+                    <div className="text-[10px] font-medium text-zinc-500">
                       Sup. terreno
                     </div>
                     <div className="font-semibold text-zinc-50">
@@ -195,7 +195,7 @@ export function MapView({
                     </div>
                   </div>
                   <div className="space-y-0.5 text-right">
-                    <div className="text-[10px] font-medium text-zinc-400">
+                    <div className="text-[10px] font-medium text-zinc-500">
                       m² ponderados
                     </div>
                     <div className="font-semibold text-zinc-50">
@@ -204,10 +204,10 @@ export function MapView({
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-1 text-[11px]">
-                  <div className="inline-flex items-center gap-1 rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] text-zinc-300">
+                <div className="flex items-center justify-between pt-1">
+                  <div className="inline-flex items-center gap-1 rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] text-zinc-100">
                     <span>Ambientes</span>
-                    <span className="font-semibold text-zinc-50">
+                    <span className="font-semibold">
                       {active.ambientes != null ? active.ambientes : "—"}
                     </span>
                   </div>
