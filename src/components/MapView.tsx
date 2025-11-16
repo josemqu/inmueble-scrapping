@@ -62,16 +62,20 @@ function getRadiusForPrice(_price: number): number {
   return 8;
 }
 
+type PricePerM2Range = { min: number; max: number };
+
 type MapViewProps = {
   inmuebles: Inmueble[];
   pricePerM2Min?: number | null;
   pricePerM2Max?: number | null;
+  highlightPricePerM2Range?: PricePerM2Range | null;
 };
 
 export function MapView({
   inmuebles,
   pricePerM2Min,
   pricePerM2Max,
+  highlightPricePerM2Range,
 }: MapViewProps) {
   const [activeId, setActiveId] = useState<number | null>(null);
 
@@ -109,30 +113,43 @@ export function MapView({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {inmuebles.map((i) => (
-          <CircleMarker
-            key={i.id}
-            center={[i.lat, i.lng]}
-            radius={getRadiusForPrice(i.priceUsd)}
-            pathOptions={{
-              color: getColorForPricePerM2(
-                i.pricePerM2,
-                dynamicMin,
-                dynamicMax
-              ),
-              fillColor: getColorForPricePerM2(
-                i.pricePerM2,
-                dynamicMin,
-                dynamicMax
-              ),
-              fillOpacity: 0.8,
-              weight: 1,
-            }}
-            eventHandlers={{
-              click: () => setActiveId(i.id),
-            }}
-          />
-        ))}
+        {inmuebles.map((i) => {
+          const value = i.pricePerM2;
+          const inHighlightRange =
+            value != null &&
+            Number.isFinite(value) &&
+            highlightPricePerM2Range != null &&
+            value >= highlightPricePerM2Range.min &&
+            value < highlightPricePerM2Range.max;
+
+          const baseColor = getColorForPricePerM2(
+            i.pricePerM2,
+            dynamicMin,
+            dynamicMax
+          );
+
+          const color = inHighlightRange ? "#22c55e" : baseColor;
+          const fillOpacity = inHighlightRange ? 0.95 : 0.25;
+          const strokeOpacity = inHighlightRange ? 1 : 0.4;
+
+          return (
+            <CircleMarker
+              key={i.id}
+              center={[i.lat, i.lng]}
+              radius={getRadiusForPrice(i.priceUsd)}
+              pathOptions={{
+                color,
+                opacity: strokeOpacity,
+                fillColor: color,
+                fillOpacity,
+                weight: inHighlightRange ? 2 : 1,
+              }}
+              eventHandlers={{
+                click: () => setActiveId(i.id),
+              }}
+            />
+          );
+        })}
 
         {active && (
           <Popup

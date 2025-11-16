@@ -24,6 +24,8 @@ type State = {
   areaTerrenoMax: number | null;
 };
 
+type HistogramRange = { min: number; max: number };
+
 const FILTER_STORAGE_KEY = "inmueble-filters-v1";
 const FILTERS_OPEN_STORAGE_KEY = "inmueble-filters-open-v1";
 
@@ -43,6 +45,8 @@ const initialState: State = {
 export default function Home() {
   const [state, setState] = useState<State>(initialState);
   const [filtersOpen, setFiltersOpen] = useState(true);
+  const [histogramSelectedRange, setHistogramSelectedRange] =
+    useState<HistogramRange | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -218,7 +222,11 @@ export default function Home() {
         <section className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-[minmax(280px,360px)_minmax(0,1fr)]">
           <div className="flex flex-col gap-3">
             <StatsPanel inmuebles={state.inmuebles} barrios={state.barrios} />
-            <PricePerM2Histogram inmuebles={filteredInmuebles} />
+            <PricePerM2Histogram
+              inmuebles={filteredInmuebles}
+              selectedRange={histogramSelectedRange}
+              onBucketClick={(range) => setHistogramSelectedRange(range)}
+            />
           </div>
 
           <div className="relative z-0 h-full min-h-[320px]">
@@ -401,6 +409,7 @@ export default function Home() {
               inmuebles={filteredInmuebles}
               pricePerM2Min={state.pricePerM2Min}
               pricePerM2Max={state.pricePerM2Max}
+              highlightPricePerM2Range={histogramSelectedRange}
             />
           </div>
         </section>

@@ -6,9 +6,15 @@ import type { Inmueble } from "@/lib/inmuebles";
 
 const BUCKET_SIZE = 100; // USD/m²
 
+type Range = { min: number; max: number };
+
 function buildBuckets(values: number[]) {
   if (values.length === 0)
-    return { categories: [] as string[], data: [] as number[] };
+    return {
+      categories: [] as string[],
+      data: [] as number[],
+      ranges: [] as Range[],
+    };
 
   const minValue = Math.min(...values);
   const maxValue = Math.max(...values);
@@ -17,7 +23,7 @@ function buildBuckets(values: number[]) {
   const end = Math.ceil(maxValue / BUCKET_SIZE) * BUCKET_SIZE;
 
   const categories: string[] = [];
-  const ranges: { min: number; max: number }[] = [];
+  const ranges: Range[] = [];
 
   for (let v = start; v < end; v += BUCKET_SIZE) {
     const min = v;
@@ -35,17 +41,27 @@ function buildBuckets(values: number[]) {
     return count;
   });
 
-  return { categories, data };
+  return { categories, data, ranges };
 }
 
-export function PricePerM2Histogram({ inmuebles }: { inmuebles: Inmueble[] }) {
+type PricePerM2HistogramProps = {
+  inmuebles: Inmueble[];
+  onBucketClick?: (range: Range | null) => void;
+  selectedRange?: Range | null;
+};
+
+export function PricePerM2Histogram({
+  inmuebles,
+  onBucketClick,
+  selectedRange,
+}: PricePerM2HistogramProps) {
   const values = inmuebles
     .map((i) => i.pricePerM2)
     .filter((v): v is number => v != null && Number.isFinite(v));
 
   const total = values.length;
 
-  const { categories, data } = buildBuckets(values);
+  const { categories, data, ranges } = buildBuckets(values);
 
   if (total === 0 || categories.length === 0) {
     return (
@@ -99,14 +115,43 @@ export function PricePerM2Histogram({ inmuebles }: { inmuebles: Inmueble[] }) {
       shared: false,
       pointFormat: "<b>{point.y}</b> inmuebles",
     },
+    plotOptions: {
+      column: {
+        cursor: onBucketClick ? "pointer" : undefined,
+        point: {
+          events: {
+            click: function () {
+              if (!onBucketClick) return;
+              const pointIndex = this.index ?? 0;
+              const range = ranges[pointIndex];
+              const isCurrentlySelected =
+                selectedRange &&
+                selectedRange.min === range.min &&
+                selectedRange.max === range.max;
+              onBucketClick(isCurrentlySelected ? null : range);
+            },
+          },
+        },
+      },
+    },
     series: [
       {
         type: "column",
         name: "Inmuebles",
-        data,
-        color: "#22c55e",
+        data: data.map((y, index) => {
+          const range = ranges[index];
+          const isSelected =
+            selectedRange &&
+            selectedRange.min === range.min &&
+            selectedRange.max === range.max;
+
+          return {
+            y,
+            color: isSelected ? "#22c55e" : "#4b5563",
+            borderColor: isSelected ? "#aaffaa" : "#6b7280",
+          } as Highcharts.PointOptionsObject;
+        }),
         borderWidth: 1,
-        borderColor: "#aaffaa",
         borderRadius: 1,
       },
     ],
