@@ -128,9 +128,8 @@ export function MapView({
             dynamicMax
           );
 
-          const color = inHighlightRange ? "#22c55e" : baseColor;
-          const fillOpacity = inHighlightRange ? 0.95 : 0.25;
-          const strokeOpacity = inHighlightRange ? 1 : 0.4;
+          const strokeColor = inHighlightRange ? "#333" : baseColor;
+          const strokeWeight = inHighlightRange ? 2 : 1;
 
           return (
             <CircleMarker
@@ -138,11 +137,11 @@ export function MapView({
               center={[i.lat, i.lng]}
               radius={getRadiusForPrice(i.priceUsd)}
               pathOptions={{
-                color,
-                opacity: strokeOpacity,
-                fillColor: color,
-                fillOpacity,
-                weight: inHighlightRange ? 2 : 1,
+                color: strokeColor,
+                opacity: 1,
+                fillColor: baseColor,
+                fillOpacity: 0.8,
+                weight: strokeWeight,
               }}
               eventHandlers={{
                 click: () => setActiveId(i.id),
