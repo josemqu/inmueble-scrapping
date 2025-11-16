@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { divIcon } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { Inmueble } from "@/lib/inmuebles";
 
@@ -58,8 +59,34 @@ function getColorForPricePerM2(
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-function getRadiusForPrice(_price: number): number {
-  return 8;
+function createMarkerIcon(
+  pricePerM2: number | null,
+  baseColor: string,
+  inHighlightRange: boolean
+) {
+  const display =
+    pricePerM2 != null && Number.isFinite(pricePerM2)
+      ? Math.round(pricePerM2).toString()
+      : "—";
+
+  const highlightClasses = inHighlightRange
+    ? "ring-2 ring-emerald-400 shadow-emerald-500/40 scale-[1.02]"
+    : "ring-1 ring-zinc-900/70";
+
+  return divIcon({
+    html: `
+      <div class="group relative -translate-y-1 select-none">
+        <div class="inline-flex items-center gap-1.5 rounded-full bg-zinc-950/95 ${highlightClasses} shadow-xl px-2.5 py-1 text-[10px] font-semibold text-zinc-50 border border-zinc-800/80 backdrop-blur">
+          <span class="inline-block h-2.5 w-2.5 rounded-full" style="background:${baseColor}"></span>
+          <span class="tracking-tight">US$ ${display} / m²</span>
+        </div>
+        <div class="mx-auto mt-1 h-2 w-[1px] rounded-full bg-zinc-700/80"></div>
+      </div>
+    `,
+    className: "",
+    iconSize: [90, 36],
+    iconAnchor: [45, 24],
+  });
 }
 
 type PricePerM2Range = { min: number; max: number };
@@ -128,21 +155,17 @@ export function MapView({
             dynamicMax
           );
 
-          const strokeColor = inHighlightRange ? "#333" : baseColor;
-          const strokeWeight = inHighlightRange ? 2 : 1;
+          const markerIcon = createMarkerIcon(
+            i.pricePerM2 ?? null,
+            baseColor,
+            inHighlightRange
+          );
 
           return (
-            <CircleMarker
+            <Marker
               key={i.id}
-              center={[i.lat, i.lng]}
-              radius={getRadiusForPrice(i.priceUsd)}
-              pathOptions={{
-                color: strokeColor,
-                opacity: 1,
-                fillColor: baseColor,
-                fillOpacity: 0.8,
-                weight: strokeWeight,
-              }}
+              position={[i.lat, i.lng]}
+              icon={markerIcon}
               eventHandlers={{
                 click: () => setActiveId(i.id),
               }}
