@@ -250,7 +250,7 @@ export default function Home() {
 
         <section className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-[minmax(280px,360px)_minmax(0,1fr)]">
           <div className="flex flex-col gap-3">
-            <StatsPanel inmuebles={state.inmuebles} barrios={state.barrios} />
+            <StatsPanel inmuebles={filteredInmuebles} barrios={state.barrios} />
             <PricePerM2Histogram
               inmuebles={filteredInmuebles}
               selectedRange={histogramSelectedRange}

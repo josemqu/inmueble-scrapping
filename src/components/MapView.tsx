@@ -64,28 +64,21 @@ function createMarkerIcon(
   baseColor: string,
   inHighlightRange: boolean
 ) {
-  const display =
-    pricePerM2 != null && Number.isFinite(pricePerM2)
-      ? Math.round(pricePerM2).toString()
-      : "—";
-
   const highlightClasses = inHighlightRange
-    ? "ring-2 ring-emerald-400 shadow-emerald-500/40 scale-[1.02]"
-    : "ring-1 ring-zinc-900/70";
+    ? "ring-2 ring-emerald-400 shadow-emerald-500/40 scale-[1.1]"
+    : "ring-1 ring-zinc-900/50";
 
   return divIcon({
     html: `
-      <div class="group relative -translate-y-1 select-none">
-        <div class="inline-flex items-center gap-1.5 rounded-full bg-zinc-950/95 ${highlightClasses} shadow-xl px-2.5 py-1 text-[10px] font-semibold text-zinc-50 border border-zinc-800/80 backdrop-blur">
-          <span class="inline-block h-2.5 w-2.5 rounded-full" style="background:${baseColor}"></span>
-          <span class="tracking-tight">US$ ${display} / m²</span>
+      <div class="group relative select-none">
+        <div class="inline-flex items-center justify-center rounded-full bg-zinc-950/50 ${highlightClasses} shadow-xl p-0 border border-zinc-800/20 backdrop-blur">
+          <span class="inline-block h-4 w-4 rounded-full" style="background:${baseColor}"></span>
         </div>
-        <div class="mx-auto mt-1 h-2 w-[1px] rounded-full bg-zinc-700/80"></div>
       </div>
     `,
     className: "",
-    iconSize: [90, 36],
-    iconAnchor: [45, 24],
+    iconSize: [20, 20],
+    iconAnchor: [20, 0],
   });
 }
 
@@ -197,7 +190,10 @@ export function MapView({
                       Precio
                     </div>
                     <div className="text-base font-semibold text-zinc-50">
-                      US$ {active.priceUsd.toLocaleString()}
+                      {active.priceUsd.toLocaleString("es-AR")}{" "}
+                      <span className="text-[11px] font-medium text-zinc-400">
+                        USD
+                      </span>
                     </div>
                   </div>
                   <div className="space-y-0.5 text-right">
@@ -205,9 +201,18 @@ export function MapView({
                       Precio / m² (ponderado)
                     </div>
                     <div className="text-sm font-semibold text-emerald-400">
-                      {active.pricePerM2
-                        ? `US$ ${active.pricePerM2.toFixed(0)} / m²`
-                        : "Sin datos"}
+                      {active.pricePerM2 ? (
+                        <>
+                          {active.pricePerM2.toLocaleString("es-AR", {
+                            maximumFractionDigits: 0,
+                          })}{" "}
+                          <span className="text-[10px] font-medium text-emerald-300/80">
+                            usd/m2
+                          </span>
+                        </>
+                      ) : (
+                        "Sin datos"
+                      )}
                     </div>
                   </div>
                 </div>
@@ -218,9 +223,16 @@ export function MapView({
                       Sup. cubierta
                     </div>
                     <div className="font-semibold text-zinc-50">
-                      {active.areaCubiertaM2
-                        ? `${active.areaCubiertaM2.toFixed(0)} m²`
-                        : "—"}
+                      {active.areaCubiertaM2 ? (
+                        <>
+                          {active.areaCubiertaM2.toFixed(0)}{" "}
+                          <span className="text-[10px] font-medium text-zinc-400">
+                            m²
+                          </span>
+                        </>
+                      ) : (
+                        "—"
+                      )}
                     </div>
                   </div>
                   <div className="space-y-0.5">
@@ -228,9 +240,16 @@ export function MapView({
                       Sup. terreno
                     </div>
                     <div className="font-semibold text-zinc-50">
-                      {active.areaTerrenoM2
-                        ? `${active.areaTerrenoM2.toFixed(0)} m²`
-                        : "—"}
+                      {active.areaTerrenoM2 ? (
+                        <>
+                          {active.areaTerrenoM2.toFixed(0)}{" "}
+                          <span className="text-[10px] font-medium text-zinc-400">
+                            m²
+                          </span>
+                        </>
+                      ) : (
+                        "—"
+                      )}
                     </div>
                   </div>
                   <div className="space-y-0.5 text-right">
@@ -238,7 +257,16 @@ export function MapView({
                       m² ponderados
                     </div>
                     <div className="font-semibold text-zinc-50">
-                      {active.areaM2 ? `${active.areaM2.toFixed(0)} m²` : "—"}
+                      {active.areaM2 ? (
+                        <>
+                          {active.areaM2.toFixed(0)}{" "}
+                          <span className="text-[10px] font-medium text-zinc-400">
+                            m²
+                          </span>
+                        </>
+                      ) : (
+                        "—"
+                      )}
                     </div>
                   </div>
                 </div>

@@ -120,10 +120,8 @@ export function PricePerM2Histogram({
         const chart = this.chart as Highcharts.Chart;
         const plotX = (point && point.plotX) || 0;
         const plotY = (point && point.plotY) || 0;
-
         const x = chart.plotLeft + plotX - labelWidth / 2;
         const y = chart.plotTop + plotY - labelHeight - 8;
-
         return { x, y };
       },
     },

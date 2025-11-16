@@ -81,9 +81,18 @@ export function SidebarFilters({
                       {b.barrio}
                     </div>
                     <div className="text-[10px] text-zinc-600 dark:text-zinc-300">
-                      {b.avgPricePerM2
-                        ? `US$ ${b.avgPricePerM2.toFixed(0)} / m²`
-                        : "Sin datos m²"}
+                      {b.avgPricePerM2 ? (
+                        <>
+                          {b.avgPricePerM2.toLocaleString("es-AR", {
+                            maximumFractionDigits: 0,
+                          })}{" "}
+                          <span className="text-[9px] font-medium text-zinc-500">
+                            usd/m2
+                          </span>
+                        </>
+                      ) : (
+                        "Sin datos m²"
+                      )}
                     </div>
                   </div>
                   <div className="text-[10px] font-medium text-zinc-500 dark:text-zinc-300">
