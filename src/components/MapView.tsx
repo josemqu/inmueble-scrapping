@@ -58,12 +58,8 @@ function getColorForPricePerM2(
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-function getRadiusForPrice(price: number): number {
-  if (!Number.isFinite(price)) return 6;
-  if (price < 80000) return 6;
-  if (price < 150000) return 8;
-  if (price < 250000) return 10;
-  return 12;
+function getRadiusForPrice(_price: number): number {
+  return 8;
 }
 
 type MapViewProps = {
