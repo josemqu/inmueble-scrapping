@@ -39,6 +39,7 @@ const initialState: State = {
 
 export default function Home() {
   const [state, setState] = useState<State>(initialState);
+  const [filtersOpen, setFiltersOpen] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -156,167 +157,179 @@ export default function Home() {
             <PricePerM2Histogram inmuebles={filteredInmuebles} />
           </div>
 
-          <div className="relative h-full min-h-[320px]">
-            <div className="pointer-events-none absolute inset-0 flex items-start justify-end p-3 md:p-4">
-              <div className="pointer-events-auto w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-950/90 p-3 text-[11px] text-zinc-300 shadow-xl backdrop-blur">
-                <div className="flex flex-col gap-2">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
-                      Filtro precio / m²
-                    </span>
-                    <input
-                      type="number"
-                      inputMode="decimal"
-                      placeholder="Mín"
-                      className="w-20 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
-                      value={state.pricePerM2Min ?? ""}
-                      onChange={(e) => {
-                        const v = parseFloat(e.target.value);
-                        setState((prev) => ({
-                          ...prev,
-                          pricePerM2Min: Number.isNaN(v) ? null : v,
-                        }));
-                      }}
-                    />
-                    <span>–</span>
-                    <input
-                      type="number"
-                      inputMode="decimal"
-                      placeholder="Máx"
-                      className="w-20 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
-                      value={state.pricePerM2Max ?? ""}
-                      onChange={(e) => {
-                        const v = parseFloat(e.target.value);
-                        setState((prev) => ({
-                          ...prev,
-                          pricePerM2Max: Number.isNaN(v) ? null : v,
-                        }));
-                      }}
-                    />
-                    <button
-                      type="button"
-                      className="rounded-full border border-zinc-700 px-3 py-1 text-[10px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
-                      onClick={() =>
-                        setState((prev) => ({
-                          ...prev,
-                          pricePerM2Min: null,
-                          pricePerM2Max: null,
-                        }))
-                      }
-                    >
-                      Limpiar
-                    </button>
-                  </div>
+          <div className="relative z-0 h-full min-h-[320px]">
+            <div className="pointer-events-none absolute inset-0 z-[9999] flex items-start justify-end p-3 md:p-4">
+              <div className="pointer-events-auto flex flex-col items-end gap-2">
+                <button
+                  type="button"
+                  className="rounded-full border border-zinc-700 bg-zinc-900/80 px-3 py-1 text-[10px] font-medium text-zinc-200 shadow-md hover:border-emerald-400 hover:text-emerald-300"
+                  onClick={() => setFiltersOpen((prev) => !prev)}
+                >
+                  {filtersOpen ? "Ocultar filtros" : "Mostrar filtros"}
+                </button>
 
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
-                      Sup. terreno (m²)
-                    </span>
-                    <input
-                      type="number"
-                      inputMode="decimal"
-                      placeholder="Mín"
-                      className="w-24 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
-                      value={state.areaTerrenoMin ?? ""}
-                      onChange={(e) => {
-                        const v = parseFloat(e.target.value);
-                        setState((prev) => ({
-                          ...prev,
-                          areaTerrenoMin: Number.isNaN(v) ? null : v,
-                        }));
-                      }}
-                    />
-                    <span>–</span>
-                    <input
-                      type="number"
-                      inputMode="decimal"
-                      placeholder="Máx"
-                      className="w-24 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
-                      value={state.areaTerrenoMax ?? ""}
-                      onChange={(e) => {
-                        const v = parseFloat(e.target.value);
-                        setState((prev) => ({
-                          ...prev,
-                          areaTerrenoMax: Number.isNaN(v) ? null : v,
-                        }));
-                      }}
-                    />
-                    <button
-                      type="button"
-                      className="rounded-full border border-zinc-700 px-3 py-1 text-[10px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
-                      onClick={() =>
-                        setState((prev) => ({
-                          ...prev,
-                          areaTerrenoMin: null,
-                          areaTerrenoMax: null,
-                        }))
-                      }
-                    >
-                      Limpiar
-                    </button>
-                  </div>
+                {filtersOpen && (
+                  <div className="w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-950/90 p-3 text-[11px] text-zinc-300 shadow-xl backdrop-blur">
+                    <div className="flex flex-col gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+                          Filtro precio / m²
+                        </span>
+                        <input
+                          type="number"
+                          inputMode="decimal"
+                          placeholder="Mín"
+                          className="w-20 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
+                          value={state.pricePerM2Min ?? ""}
+                          onChange={(e) => {
+                            const v = parseFloat(e.target.value);
+                            setState((prev) => ({
+                              ...prev,
+                              pricePerM2Min: Number.isNaN(v) ? null : v,
+                            }));
+                          }}
+                        />
+                        <span>–</span>
+                        <input
+                          type="number"
+                          inputMode="decimal"
+                          placeholder="Máx"
+                          className="w-20 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
+                          value={state.pricePerM2Max ?? ""}
+                          onChange={(e) => {
+                            const v = parseFloat(e.target.value);
+                            setState((prev) => ({
+                              ...prev,
+                              pricePerM2Max: Number.isNaN(v) ? null : v,
+                            }));
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="rounded-full border border-zinc-700 px-3 py-1 text-[10px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
+                          onClick={() =>
+                            setState((prev) => ({
+                              ...prev,
+                              pricePerM2Min: null,
+                              pricePerM2Max: null,
+                            }))
+                          }
+                        >
+                          Limpiar
+                        </button>
+                      </div>
 
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
-                      Precio total
-                    </span>
-                    <input
-                      type="number"
-                      inputMode="decimal"
-                      placeholder="Mín"
-                      className="w-24 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
-                      value={state.priceTotalMin ?? ""}
-                      onChange={(e) => {
-                        const v = parseFloat(e.target.value);
-                        setState((prev) => ({
-                          ...prev,
-                          priceTotalMin: Number.isNaN(v) ? null : v,
-                        }));
-                      }}
-                    />
-                    <span>–</span>
-                    <input
-                      type="number"
-                      inputMode="decimal"
-                      placeholder="Máx"
-                      className="w-24 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
-                      value={state.priceTotalMax ?? ""}
-                      onChange={(e) => {
-                        const v = parseFloat(e.target.value);
-                        setState((prev) => ({
-                          ...prev,
-                          priceTotalMax: Number.isNaN(v) ? null : v,
-                        }));
-                      }}
-                    />
-                    <button
-                      type="button"
-                      className="rounded-full border border-zinc-700 px-3 py-1 text-[10px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
-                      onClick={() =>
-                        setState((prev) => ({
-                          ...prev,
-                          priceTotalMin: null,
-                          priceTotalMax: null,
-                        }))
-                      }
-                    >
-                      Limpiar
-                    </button>
-                  </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+                          Sup. terreno (m²)
+                        </span>
+                        <input
+                          type="number"
+                          inputMode="decimal"
+                          placeholder="Mín"
+                          className="w-24 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
+                          value={state.areaTerrenoMin ?? ""}
+                          onChange={(e) => {
+                            const v = parseFloat(e.target.value);
+                            setState((prev) => ({
+                              ...prev,
+                              areaTerrenoMin: Number.isNaN(v) ? null : v,
+                            }));
+                          }}
+                        />
+                        <span>–</span>
+                        <input
+                          type="number"
+                          inputMode="decimal"
+                          placeholder="Máx"
+                          className="w-24 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
+                          value={state.areaTerrenoMax ?? ""}
+                          onChange={(e) => {
+                            const v = parseFloat(e.target.value);
+                            setState((prev) => ({
+                              ...prev,
+                              areaTerrenoMax: Number.isNaN(v) ? null : v,
+                            }));
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="rounded-full border border-zinc-700 px-3 py-1 text-[10px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
+                          onClick={() =>
+                            setState((prev) => ({
+                              ...prev,
+                              areaTerrenoMin: null,
+                              areaTerrenoMax: null,
+                            }))
+                          }
+                        >
+                          Limpiar
+                        </button>
+                      </div>
 
-                  <div>
-                    {state.loading && <span>Cargando inmuebles…</span>}
-                    {!state.loading && state.error && (
-                      <span className="text-amber-400">{state.error}</span>
-                    )}
-                    {!state.loading && !state.error && (
-                      <span>
-                        {state.inmuebles.length.toLocaleString()} inmuebles
-                        cargados
-                      </span>
-                    )}
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+                          Precio total
+                        </span>
+                        <input
+                          type="number"
+                          inputMode="decimal"
+                          placeholder="Mín"
+                          className="w-24 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
+                          value={state.priceTotalMin ?? ""}
+                          onChange={(e) => {
+                            const v = parseFloat(e.target.value);
+                            setState((prev) => ({
+                              ...prev,
+                              priceTotalMin: Number.isNaN(v) ? null : v,
+                            }));
+                          }}
+                        />
+                        <span>–</span>
+                        <input
+                          type="number"
+                          inputMode="decimal"
+                          placeholder="Máx"
+                          className="w-24 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
+                          value={state.priceTotalMax ?? ""}
+                          onChange={(e) => {
+                            const v = parseFloat(e.target.value);
+                            setState((prev) => ({
+                              ...prev,
+                              priceTotalMax: Number.isNaN(v) ? null : v,
+                            }));
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="rounded-full border border-zinc-700 px-3 py-1 text-[10px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
+                          onClick={() =>
+                            setState((prev) => ({
+                              ...prev,
+                              priceTotalMin: null,
+                              priceTotalMax: null,
+                            }))
+                          }
+                        >
+                          Limpiar
+                        </button>
+                      </div>
+
+                      <div>
+                        {state.loading && <span>Cargando inmuebles…</span>}
+                        {!state.loading && state.error && (
+                          <span className="text-amber-400">{state.error}</span>
+                        )}
+                        {!state.loading && !state.error && (
+                          <span>
+                            {state.inmuebles.length.toLocaleString()} inmuebles
+                            cargados
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
 
