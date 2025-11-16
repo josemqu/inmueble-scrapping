@@ -35,7 +35,7 @@ export function SidebarFilters({
   };
 
   return (
-    <aside className="flex h-full flex-col rounded-3xl border border-zinc-200 bg-white/80 p-4 shadow-xl backdrop-blur-xl dark:bg-zinc-900/80">
+    <aside className="flex h-full flex-col rounded-xl border border-zinc-200 bg-white/80 p-4 shadow-xl backdrop-blur-xl dark:bg-zinc-900/80">
       <header className="mb-4 space-y-1">
         <h1 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
           Mapa de valor m²
@@ -70,7 +70,7 @@ export function SidebarFilters({
                 <button
                   type="button"
                   onClick={() => handleToggle(b.barrio)}
-                  className={`flex w-full items-center justify-between rounded-2xl px-3 py-2 text-left transition ${
+                  className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition ${
                     isActive
                       ? "bg-zinc-900 text-zinc-50 shadow-sm dark:bg-zinc-50 dark:text-zinc-900"
                       : "bg-zinc-100/70 text-zinc-800 hover:bg-zinc-200/80 dark:bg-zinc-800/70 dark:text-zinc-100 dark:hover:bg-zinc-700/80"

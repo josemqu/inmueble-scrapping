@@ -97,7 +97,7 @@ export function MapView({
       : null;
 
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-3xl border border-zinc-200 bg-zinc-950/90 shadow-xl">
+    <div className="relative h-full w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-950/90 shadow-xl">
       <MapContainer
         center={MAR_DEL_PLATA_CENTER}
         zoom={12}

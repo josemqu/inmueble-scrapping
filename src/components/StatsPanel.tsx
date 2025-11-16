@@ -52,7 +52,7 @@ export function StatsPanel({
       : null;
 
   return (
-    <section className="rounded-3xl border border-zinc-200 bg-white/80 p-4 text-xs shadow-xl backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/80 md:p-5">
+    <section className="rounded-xl border border-zinc-200 bg-white/80 p-4 text-xs shadow-xl backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/80 md:p-5">
       <div className="flex flex-wrap items-end justify-between gap-3 border-b border-zinc-200 pb-3 dark:border-zinc-800">
         <div>
           <div className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
@@ -75,7 +75,7 @@ export function StatsPanel({
       </div>
 
       <div className="mt-4 grid gap-3 md:grid-cols-3">
-        <div className="space-y-1 rounded-2xl bg-zinc-50/80 p-3 dark:bg-zinc-900/80">
+        <div className="space-y-1 rounded-xl bg-zinc-50/80 p-3 dark:bg-zinc-900/80">
           <div className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
             Promedio m² (global)
           </div>
@@ -94,7 +94,7 @@ export function StatsPanel({
           )}
         </div>
 
-        <div className="space-y-1 rounded-2xl bg-zinc-50/80 p-3 dark:bg-zinc-900/80">
+        <div className="space-y-1 rounded-xl bg-zinc-50/80 p-3 dark:bg-zinc-900/80">
           <div className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
             Precio total promedio
           </div>
@@ -108,7 +108,7 @@ export function StatsPanel({
           )}
         </div>
 
-        <div className="space-y-1 rounded-2xl bg-zinc-50/80 p-3 dark:bg-zinc-900/80">
+        <div className="space-y-1 rounded-xl bg-zinc-50/80 p-3 dark:bg-zinc-900/80">
           <div className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
             Rangos por barrio
           </div>

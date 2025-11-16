@@ -233,7 +233,7 @@ export default function Home() {
                 </button>
 
                 {filtersOpen && (
-                  <div className="w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-950/90 p-3 text-[11px] text-zinc-300 shadow-xl backdrop-blur">
+                  <div className="w-full max-w-md rounded-xl border border-zinc-800 bg-zinc-950/90 p-3 text-[11px] text-zinc-300 shadow-xl backdrop-blur">
                     <div className="flex flex-col gap-2">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
