@@ -104,13 +104,10 @@ export function PricePerM2Histogram({ inmuebles }: { inmuebles: Inmueble[] }) {
         type: "column",
         name: "Inmuebles",
         data,
-        color: {
-          linearGradient: { x1: 0, y1: 1, x2: 0, y2: 0 },
-          stops: [
-            [0, "#22c55e"],
-            [1, "#bbf7d0"],
-          ],
-        },
+        color: "#22c55e",
+        borderWidth: 1,
+        borderColor: "#aaffaa",
+        borderRadius: 1,
       },
     ],
     credits: { enabled: false },
