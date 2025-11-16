@@ -1,15 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import type { BarrioStats, Inmueble, InmueblesResponse } from "@/lib/inmuebles";
-import { MapView } from "@/components/MapView";
 import { StatsPanel } from "@/components/StatsPanel";
+import { PricePerM2Histogram } from "@/components/PricePerM2Histogram";
+
+const MapView = dynamic(
+  () => import("@/components/MapView").then((m) => m.MapView),
+  { ssr: false }
+);
 
 type State = {
   inmuebles: Inmueble[];
   barrios: BarrioStats[];
   loading: boolean;
   error: string | null;
+  pricePerM2Min: number | null;
+  pricePerM2Max: number | null;
 };
 
 const initialState: State = {
@@ -17,6 +25,8 @@ const initialState: State = {
   barrios: [],
   loading: true,
   error: null,
+  pricePerM2Min: null,
+  pricePerM2Max: null,
 };
 
 export default function Home() {
@@ -60,7 +70,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 text-zinc-50">
       <main className="flex min-h-screen flex-1 flex-col gap-4 px-4 py-4 md:px-6 md:py-6">
-        <header className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+        <header className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <h1 className="text-xl font-semibold tracking-tight md:text-2xl">
               Análisis de valor m² · Mar del Plata
@@ -70,26 +80,130 @@ export default function Home() {
               cómo varía el precio por metro cuadrado según el barrio.
             </p>
           </div>
-          <div className="text-[11px] text-zinc-400">
-            {state.loading && <span>Cargando inmuebles…</span>}
-            {!state.loading && state.error && (
-              <span className="text-amber-400">{state.error}</span>
-            )}
-            {!state.loading && !state.error && (
-              <span>
-                {state.inmuebles.length.toLocaleString()} inmuebles cargados
+          <div className="flex flex-col gap-2 text-[11px] text-zinc-400 md:items-end">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+                Filtro precio / m²
               </span>
-            )}
+              <input
+                type="number"
+                inputMode="decimal"
+                placeholder="Mín"
+                className="w-20 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
+                value={state.pricePerM2Min ?? ""}
+                onChange={(e) => {
+                  const v = parseFloat(e.target.value);
+                  setState((prev) => ({
+                    ...prev,
+                    pricePerM2Min: Number.isNaN(v) ? null : v,
+                  }));
+                }}
+              />
+              <span>–</span>
+              <input
+                type="number"
+                inputMode="decimal"
+                placeholder="Máx"
+                className="w-20 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
+                value={state.pricePerM2Max ?? ""}
+                onChange={(e) => {
+                  const v = parseFloat(e.target.value);
+                  setState((prev) => ({
+                    ...prev,
+                    pricePerM2Max: Number.isNaN(v) ? null : v,
+                  }));
+                }}
+              />
+              <button
+                type="button"
+                className="rounded-full border border-zinc-700 px-3 py-1 text-[10px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
+                onClick={() =>
+                  setState((prev) => ({
+                    ...prev,
+                    pricePerM2Min: null,
+                    pricePerM2Max: null,
+                  }))
+                }
+              >
+                Limpiar
+              </button>
+            </div>
+            <div>
+              {state.loading && <span>Cargando inmuebles…</span>}
+              {!state.loading && state.error && (
+                <span className="text-amber-400">{state.error}</span>
+              )}
+              {!state.loading && !state.error && (
+                <span>
+                  {state.inmuebles.length.toLocaleString()} inmuebles cargados
+                </span>
+              )}
+            </div>
           </div>
         </header>
 
         <section className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-[minmax(260px,320px)_minmax(0,1fr)]">
           <div className="flex flex-col gap-3">
             <StatsPanel inmuebles={state.inmuebles} barrios={state.barrios} />
+            <PricePerM2Histogram
+              inmuebles={
+                state.pricePerM2Min == null && state.pricePerM2Max == null
+                  ? state.inmuebles
+                  : state.inmuebles.filter((i) => {
+                      if (
+                        i.pricePerM2 == null ||
+                        !Number.isFinite(i.pricePerM2)
+                      ) {
+                        return false;
+                      }
+                      if (
+                        state.pricePerM2Min != null &&
+                        i.pricePerM2 < state.pricePerM2Min
+                      ) {
+                        return false;
+                      }
+                      if (
+                        state.pricePerM2Max != null &&
+                        i.pricePerM2 > state.pricePerM2Max
+                      ) {
+                        return false;
+                      }
+                      return true;
+                    })
+              }
+            />
           </div>
 
-          <div className="h-[420px] md:h-auto">
-            <MapView inmuebles={state.inmuebles} />
+          <div className="h-full min-h-[320px]">
+            <MapView
+              inmuebles={
+                state.pricePerM2Min == null && state.pricePerM2Max == null
+                  ? state.inmuebles
+                  : state.inmuebles.filter((i) => {
+                      if (
+                        i.pricePerM2 == null ||
+                        !Number.isFinite(i.pricePerM2)
+                      ) {
+                        return false;
+                      }
+                      if (
+                        state.pricePerM2Min != null &&
+                        i.pricePerM2 < state.pricePerM2Min
+                      ) {
+                        return false;
+                      }
+                      if (
+                        state.pricePerM2Max != null &&
+                        i.pricePerM2 > state.pricePerM2Max
+                      ) {
+                        return false;
+                      }
+                      return true;
+                    })
+              }
+              pricePerM2Min={state.pricePerM2Min}
+              pricePerM2Max={state.pricePerM2Max}
+            />
           </div>
         </section>
       </main>
