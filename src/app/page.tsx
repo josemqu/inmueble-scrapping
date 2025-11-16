@@ -24,6 +24,9 @@ type State = {
   areaTerrenoMax: number | null;
 };
 
+const FILTER_STORAGE_KEY = "inmueble-filters-v1";
+const FILTERS_OPEN_STORAGE_KEY = "inmueble-filters-open-v1";
+
 const initialState: State = {
   inmuebles: [],
   barrios: [],
@@ -75,6 +78,67 @@ export default function Home() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    try {
+      const rawFilters = window.localStorage.getItem(FILTER_STORAGE_KEY);
+      if (rawFilters) {
+        const parsed = JSON.parse(rawFilters) as Partial<State>;
+        setState((prev) => ({
+          ...prev,
+          pricePerM2Min: parsed.pricePerM2Min ?? prev.pricePerM2Min,
+          pricePerM2Max: parsed.pricePerM2Max ?? prev.pricePerM2Max,
+          priceTotalMin: parsed.priceTotalMin ?? prev.priceTotalMin,
+          priceTotalMax: parsed.priceTotalMax ?? prev.priceTotalMax,
+          areaTerrenoMin: parsed.areaTerrenoMin ?? prev.areaTerrenoMin,
+          areaTerrenoMax: parsed.areaTerrenoMax ?? prev.areaTerrenoMax,
+        }));
+      }
+
+      const rawOpen = window.localStorage.getItem(FILTERS_OPEN_STORAGE_KEY);
+      if (rawOpen != null) {
+        setFiltersOpen(rawOpen === "1");
+      }
+    } catch {
+      // ignore localStorage errors
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    try {
+      const toPersist = {
+        pricePerM2Min: state.pricePerM2Min,
+        pricePerM2Max: state.pricePerM2Max,
+        priceTotalMin: state.priceTotalMin,
+        priceTotalMax: state.priceTotalMax,
+        areaTerrenoMin: state.areaTerrenoMin,
+        areaTerrenoMax: state.areaTerrenoMax,
+      };
+
+      window.localStorage.setItem(
+        FILTER_STORAGE_KEY,
+        JSON.stringify(toPersist)
+      );
+      window.localStorage.setItem(
+        FILTERS_OPEN_STORAGE_KEY,
+        filtersOpen ? "1" : "0"
+      );
+    } catch {
+      // ignore localStorage errors
+    }
+  }, [
+    state.pricePerM2Min,
+    state.pricePerM2Max,
+    state.priceTotalMin,
+    state.priceTotalMax,
+    state.areaTerrenoMin,
+    state.areaTerrenoMax,
+    filtersOpen,
+  ]);
 
   const filteredInmuebles =
     state.pricePerM2Min == null &&
