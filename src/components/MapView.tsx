@@ -8,6 +8,10 @@ import type { Inmueble } from "@/lib/inmuebles";
 
 const MAR_DEL_PLATA_CENTER: [number, number] = [-38.005, -57.55];
 
+const AnyMapContainer = MapContainer as any;
+const AnyTileLayer = TileLayer as any;
+const AnyMarker = Marker as any;
+
 function getColorForPricePerM2(
   value: number | null,
   min: number | null,
@@ -122,13 +126,13 @@ export function MapView({
 
   return (
     <div className="relative h-full w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-950/90 shadow-xl">
-      <MapContainer
+      <AnyMapContainer
         center={MAR_DEL_PLATA_CENTER}
         zoom={12}
         className="h-full w-full"
         scrollWheelZoom
       >
-        <TileLayer
+        <AnyTileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
@@ -155,7 +159,7 @@ export function MapView({
           );
 
           return (
-            <Marker
+            <AnyMarker
               key={i.id}
               position={[i.lat, i.lng]}
               icon={markerIcon}
@@ -283,7 +287,7 @@ export function MapView({
             </div>
           </Popup>
         )}
-      </MapContainer>
+      </AnyMapContainer>
     </div>
   );
 }
