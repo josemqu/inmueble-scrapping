@@ -66,10 +66,13 @@ function getColorForPricePerM2(
 function createMarkerIcon(
   pricePerM2: number | null,
   baseColor: string,
-  inHighlightRange: boolean
+  inHighlightRange: boolean,
+  isActive: boolean
 ) {
-  const highlightClasses = inHighlightRange
-    ? "ring-2 ring-emerald-400 shadow-emerald-500/40 scale-[1.1]"
+  const highlightClasses = isActive
+    ? "ring-2 ring-red-500 shadow-red-500/40 scale-[1.1]"
+    : inHighlightRange
+    ? "ring-2 ring-emerald-400 shadow-emerald-500/40 scale-[1.05]"
     : "ring-1 ring-zinc-900/50";
 
   return divIcon({
@@ -155,7 +158,8 @@ export function MapView({
           const markerIcon = createMarkerIcon(
             i.pricePerM2 ?? null,
             baseColor,
-            inHighlightRange
+            inHighlightRange,
+            activeId === i.id
           );
 
           return (

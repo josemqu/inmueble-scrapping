@@ -104,7 +104,8 @@ export function mapRawToInmueble(raw: RawInmueble): Inmueble | null {
     areaM2 = null;
   }
 
-  const pricePerM2 = areaM2 && areaM2 > 0 ? priceUsd / areaM2 : null;
+  const pricePerM2 =
+    hasCubierta && areaM2 && areaM2 > 30 ? priceUsd / areaM2 : null;
 
   const createdAt = raw.fecha_creacion ? new Date(raw.fecha_creacion) : null;
   const lastUpdate = raw.last_update ? new Date(raw.last_update) : null;
