@@ -179,7 +179,7 @@ export function MapView({
                   {active.barrio ?? "Sin barrio"}
                 </div>
                 <div className="text-sm font-semibold leading-snug text-zinc-50">
-                  {active.title}
+                  {active.calle} {active.numero}
                 </div>
               </div>
 

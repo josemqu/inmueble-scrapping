@@ -8,6 +8,8 @@ export type RawInmueble = {
   longitud: number | null;
   precio: string;
   moneda: number;
+  calle: string | null;
+  numero: number | null;
   barrio_nombre: string | null;
   casa_sup_cubierta?: string | null;
   casa_sup_terreno?: string | null;
@@ -29,6 +31,8 @@ export type Inmueble = {
   areaM2: number | null;
   pricePerM2: number | null;
   barrio: string | null;
+  calle: string | null;
+  numero: number | null;
   ambientes: number | null;
   createdAt: Date | null;
   lastUpdate: Date | null;
@@ -46,6 +50,17 @@ export type InmueblesResponse = {
 };
 
 const USD_CURRENCY_ID = 2;
+
+function toProperCase(value: string | null): string | null {
+  if (!value) return value;
+
+  return value
+    .toLowerCase()
+    .split(" ")
+    .filter(Boolean)
+    .map((word) => word[0].toUpperCase() + word.slice(1))
+    .join(" ");
+}
 
 export function mapRawToInmueble(raw: RawInmueble): Inmueble | null {
   if (raw.latitud == null || raw.longitud == null) {
@@ -105,6 +120,8 @@ export function mapRawToInmueble(raw: RawInmueble): Inmueble | null {
     areaM2,
     pricePerM2,
     barrio: raw.barrio_nombre ?? null,
+    calle: toProperCase(raw.calle ?? null),
+    numero: raw.numero ?? null,
     ambientes:
       typeof raw.casa_ambientes === "number" &&
       Number.isFinite(raw.casa_ambientes)
