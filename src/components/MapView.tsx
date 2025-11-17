@@ -85,7 +85,7 @@ function createMarkerIcon(
     `,
     className: "",
     iconSize: [20, 20],
-    iconAnchor: [20, 0],
+    iconAnchor: [10, 0],
   });
 }
 
