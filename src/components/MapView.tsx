@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { divIcon } from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -105,10 +105,55 @@ export function MapView({
   highlightPricePerM2Range,
 }: MapViewProps) {
   const [activeId, setActiveId] = useState<number | null>(null);
+  const [activeImages, setActiveImages] = useState<string[] | null>(null);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   const active =
     activeId != null
       ? (inmuebles.find((i) => i.id === activeId) ?? null)
+      : null;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (activeId == null) {
+      setActiveImages(null);
+      setActiveImageIndex(0);
+      return;
+    }
+
+    setActiveImages(null);
+    setActiveImageIndex(0);
+
+    const load = async () => {
+      try {
+        const res = await fetch(`/api/inmuebles/${activeId}`);
+        if (!res.ok) return;
+        const json = (await res.json()) as { images?: string[] };
+        if (cancelled) return;
+        const imgs = Array.isArray(json.images) ? json.images : [];
+        setActiveImages(imgs);
+      } catch {
+        // ignore
+      }
+    };
+
+    load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeId]);
+
+  const carouselImages = useMemo(() => {
+    if (activeImages && activeImages.length > 0) return activeImages;
+    if (active?.coverImageUrl) return [active.coverImageUrl];
+    return [];
+  }, [active?.coverImageUrl, activeImages]);
+
+  const carouselImage =
+    carouselImages.length > 0
+      ? carouselImages[Math.min(activeImageIndex, carouselImages.length - 1)]
       : null;
 
   const priceValues = inmuebles
@@ -184,15 +229,54 @@ export function MapView({
             }}
           >
             <div className="w-100 max-w-xs rounded-lg bg-zinc-950/95 p-3 shadow-xl ring-1 ring-zinc-800">
-              {active.coverImageUrl && (
+              {carouselImage && (
                 <div className="mb-3 overflow-hidden rounded-md border border-zinc-800/60">
-                  <img
-                    src={active.coverImageUrl}
-                    alt={active.title}
-                    className="h-28 w-full object-cover"
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
-                  />
+                  <div className="relative">
+                    <img
+                      src={carouselImage}
+                      alt={active.title}
+                      className="h-32 w-full object-cover"
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                    />
+
+                    {carouselImages.length > 1 && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setActiveImageIndex((prev) =>
+                              prev <= 0 ? carouselImages.length - 1 : prev - 1,
+                            );
+                          }}
+                          className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full border border-zinc-700/60 bg-zinc-950/70 px-2 py-1 text-xs font-semibold text-zinc-100 backdrop-blur hover:bg-zinc-900/80"
+                          aria-label="Foto anterior"
+                        >
+                          ‹
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setActiveImageIndex((prev) =>
+                              prev >= carouselImages.length - 1 ? 0 : prev + 1,
+                            );
+                          }}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full border border-zinc-700/60 bg-zinc-950/70 px-2 py-1 text-xs font-semibold text-zinc-100 backdrop-blur hover:bg-zinc-900/80"
+                          aria-label="Foto siguiente"
+                        >
+                          ›
+                        </button>
+
+                        <div className="absolute bottom-2 right-2 rounded-full border border-zinc-700/60 bg-zinc-950/70 px-2 py-0.5 text-[10px] font-medium text-zinc-100 backdrop-blur">
+                          {activeImageIndex + 1}/{carouselImages.length}
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               )}
               <div className="space-y-1">
@@ -202,6 +286,14 @@ export function MapView({
                 <div className="text-sm font-semibold leading-snug text-zinc-50">
                   {active.calle} {active.numero}
                 </div>
+                <a
+                  href={active.publicUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex text-[11px] font-medium text-sky-300 hover:text-sky-200"
+                >
+                  Ver publicación
+                </a>
               </div>
 
               <div className="mt-3 space-y-3 text-[11px] text-zinc-300">
@@ -298,6 +390,10 @@ export function MapView({
                     <span className="font-semibold">
                       {active.ambientes != null ? active.ambientes : "—"}
                     </span>
+                  </div>
+
+                  <div className="text-[10px] font-medium text-zinc-500">
+                    ID {active.id}
                   </div>
                 </div>
               </div>

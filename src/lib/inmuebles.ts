@@ -25,6 +25,7 @@ export type Inmueble = {
   lat: number;
   lng: number;
   priceUsd: number;
+  publicUrl: string;
   coverImageUrl: string | null;
   // Raw areas
   areaCubiertaM2: number | null;
@@ -52,6 +53,20 @@ export type InmueblesResponse = {
 };
 
 const USD_CURRENCY_ID = 2;
+
+function slugify(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/-{2,}/g, "-");
+}
+
+function normalizePathSegment(value: string): string {
+  return slugify(value);
+}
 
 function toProperCase(value: string | null): string | null {
   if (!value) return value;
@@ -116,12 +131,34 @@ export function mapRawToInmueble(raw: RawInmueble): Inmueble | null {
     ? `https://api.mardelinmueble.com/uploads/inmuebles/thumbnails/${raw.imagen_principal}`
     : null;
 
+  const rawAny = raw as unknown as {
+    tipo_operacion?: string | null;
+    tipo_inmueble?: string | null;
+    id_tipo_operacion?: number | null;
+    id_tipo_inmueble?: number | null;
+  };
+
+  const operacion = rawAny.tipo_operacion
+    ? normalizePathSegment(rawAny.tipo_operacion)
+    : rawAny.id_tipo_operacion === 1
+      ? "venta"
+      : "venta";
+
+  const tipo = rawAny.tipo_inmueble
+    ? normalizePathSegment(rawAny.tipo_inmueble)
+    : rawAny.id_tipo_inmueble === 1
+      ? "casa"
+      : "casa";
+
+  const titleSlug = slugify(raw.titulo);
+
   return {
     id: raw.id,
     title: raw.titulo,
     lat: raw.latitud,
     lng: raw.longitud,
     priceUsd,
+    publicUrl: `https://mardelinmueble.com/inmueble/${operacion}/${tipo}/${titleSlug}/${raw.id}`,
     coverImageUrl,
     areaCubiertaM2: hasCubierta ? supCubierta : null,
     areaTerrenoM2: hasTerreno ? supTerreno : null,
