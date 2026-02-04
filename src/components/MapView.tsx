@@ -1,16 +1,22 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import type { ComponentType } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { divIcon } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { Inmueble } from "@/lib/inmuebles";
+import { InmueblePopupContent } from "@/components/InmueblePopupContent";
 
 const MAR_DEL_PLATA_CENTER: [number, number] = [-38.005, -57.55];
 
-const AnyMapContainer = MapContainer as any;
-const AnyTileLayer = TileLayer as any;
-const AnyMarker = Marker as any;
+const AnyMapContainer = MapContainer as unknown as ComponentType<
+  Record<string, unknown>
+>;
+const AnyTileLayer = TileLayer as unknown as ComponentType<
+  Record<string, unknown>
+>;
+const AnyMarker = Marker as unknown as ComponentType<Record<string, unknown>>;
 
 function getColorForPricePerM2(
   value: number | null,
@@ -106,7 +112,16 @@ export function MapView({
 }: MapViewProps) {
   const [activeId, setActiveId] = useState<number | null>(null);
   const [activeImages, setActiveImages] = useState<string[] | null>(null);
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  const activate = (id: number) => {
+    setActiveId(id);
+    setActiveImages(null);
+  };
+
+  const deactivate = () => {
+    setActiveId(null);
+    setActiveImages(null);
+  };
 
   const active =
     activeId != null
@@ -117,13 +132,8 @@ export function MapView({
     let cancelled = false;
 
     if (activeId == null) {
-      setActiveImages(null);
-      setActiveImageIndex(0);
       return;
     }
-
-    setActiveImages(null);
-    setActiveImageIndex(0);
 
     const load = async () => {
       try {
@@ -145,16 +155,12 @@ export function MapView({
     };
   }, [activeId]);
 
-  const carouselImages = useMemo(() => {
-    if (activeImages && activeImages.length > 0) return activeImages;
-    if (active?.coverImageUrl) return [active.coverImageUrl];
-    return [];
-  }, [active?.coverImageUrl, activeImages]);
-
-  const carouselImage =
-    carouselImages.length > 0
-      ? carouselImages[Math.min(activeImageIndex, carouselImages.length - 1)]
-      : null;
+  const carouselImages =
+    activeImages && activeImages.length > 0
+      ? activeImages
+      : active?.coverImageUrl
+        ? [active.coverImageUrl]
+        : [];
 
   const priceValues = inmuebles
     .map((i) => i.pricePerM2)
@@ -215,7 +221,7 @@ export function MapView({
               position={[i.lat, i.lng]}
               icon={markerIcon}
               eventHandlers={{
-                click: () => setActiveId(i.id),
+                click: () => activate(i.id),
               }}
             />
           );
@@ -225,179 +231,13 @@ export function MapView({
           <Popup
             position={[active.lat, active.lng]}
             eventHandlers={{
-              remove: () => setActiveId(null),
+              remove: () => deactivate(),
             }}
           >
-            <div className="w-100 max-w-xs rounded-lg bg-zinc-950/95 p-3 shadow-xl ring-1 ring-zinc-800">
-              {carouselImage && (
-                <div className="mb-3 overflow-hidden rounded-md border border-zinc-800/60">
-                  <div className="relative">
-                    <img
-                      src={carouselImage}
-                      alt={active.title}
-                      className="h-32 w-full object-cover"
-                      loading="lazy"
-                      referrerPolicy="no-referrer"
-                    />
-
-                    {carouselImages.length > 1 && (
-                      <>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setActiveImageIndex((prev) =>
-                              prev <= 0 ? carouselImages.length - 1 : prev - 1,
-                            );
-                          }}
-                          className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full border border-zinc-700/60 bg-zinc-950/70 px-2 py-1 text-xs font-semibold text-zinc-100 backdrop-blur hover:bg-zinc-900/80"
-                          aria-label="Foto anterior"
-                        >
-                          ‹
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setActiveImageIndex((prev) =>
-                              prev >= carouselImages.length - 1 ? 0 : prev + 1,
-                            );
-                          }}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full border border-zinc-700/60 bg-zinc-950/70 px-2 py-1 text-xs font-semibold text-zinc-100 backdrop-blur hover:bg-zinc-900/80"
-                          aria-label="Foto siguiente"
-                        >
-                          ›
-                        </button>
-
-                        <div className="absolute bottom-2 right-2 rounded-full border border-zinc-700/60 bg-zinc-950/70 px-2 py-0.5 text-[10px] font-medium text-zinc-100 backdrop-blur">
-                          {activeImageIndex + 1}/{carouselImages.length}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              )}
-              <div className="space-y-1">
-                <div className="text-[11px] font-medium uppercase tracking-wide text-zinc-400">
-                  {active.barrio ?? "Sin barrio"}
-                </div>
-                <div className="text-sm font-semibold leading-snug text-zinc-50">
-                  {active.calle} {active.numero}
-                </div>
-                <a
-                  href={active.publicUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex text-[11px] font-medium text-sky-300 hover:text-sky-200"
-                >
-                  Ver publicación
-                </a>
-              </div>
-
-              <div className="mt-3 space-y-3 text-[11px] text-zinc-300">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="space-y-0.5">
-                    <div className="text-[11px] font-medium text-zinc-400">
-                      Precio
-                    </div>
-                    <div className="text-base font-semibold text-zinc-50">
-                      {active.priceUsd.toLocaleString("es-AR")}{" "}
-                      <span className="text-[11px] font-medium text-zinc-400">
-                        USD
-                      </span>
-                    </div>
-                  </div>
-                  <div className="space-y-0.5 text-right">
-                    <div className="text-[11px] font-medium text-zinc-400">
-                      Precio / m² (ponderado)
-                    </div>
-                    <div className="text-sm font-semibold text-emerald-400">
-                      {active.pricePerM2 ? (
-                        <>
-                          {active.pricePerM2.toLocaleString("es-AR", {
-                            maximumFractionDigits: 0,
-                          })}{" "}
-                          <span className="text-[10px] font-medium text-emerald-300/80">
-                            usd/m2
-                          </span>
-                        </>
-                      ) : (
-                        "Sin datos"
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3 border-t border-zinc-800 pt-2">
-                  <div className="space-y-0.5">
-                    <div className="text-[10px] font-medium text-zinc-500">
-                      Sup. cubierta
-                    </div>
-                    <div className="font-semibold text-zinc-50">
-                      {active.areaCubiertaM2 ? (
-                        <>
-                          {active.areaCubiertaM2.toFixed(0)}{" "}
-                          <span className="text-[10px] font-medium text-zinc-400">
-                            m²
-                          </span>
-                        </>
-                      ) : (
-                        "—"
-                      )}
-                    </div>
-                  </div>
-                  <div className="space-y-0.5">
-                    <div className="text-[10px] font-medium text-zinc-500">
-                      Sup. terreno
-                    </div>
-                    <div className="font-semibold text-zinc-50">
-                      {active.areaTerrenoM2 ? (
-                        <>
-                          {active.areaTerrenoM2.toFixed(0)}{" "}
-                          <span className="text-[10px] font-medium text-zinc-400">
-                            m²
-                          </span>
-                        </>
-                      ) : (
-                        "—"
-                      )}
-                    </div>
-                  </div>
-                  <div className="space-y-0.5 text-right">
-                    <div className="text-[10px] font-medium text-zinc-500">
-                      m² ponderados
-                    </div>
-                    <div className="font-semibold text-zinc-50">
-                      {active.areaM2 ? (
-                        <>
-                          {active.areaM2.toFixed(0)}{" "}
-                          <span className="text-[10px] font-medium text-zinc-400">
-                            m²
-                          </span>
-                        </>
-                      ) : (
-                        "—"
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-1">
-                  <div className="inline-flex items-center gap-1 rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] text-zinc-100">
-                    <span>Ambientes</span>
-                    <span className="font-semibold">
-                      {active.ambientes != null ? active.ambientes : "—"}
-                    </span>
-                  </div>
-
-                  <div className="text-[10px] font-medium text-zinc-500">
-                    ID {active.id}
-                  </div>
-                </div>
-              </div>
-            </div>
+            <InmueblePopupContent
+              inmueble={active}
+              carouselImages={carouselImages}
+            />
           </Popup>
         )}
       </AnyMapContainer>

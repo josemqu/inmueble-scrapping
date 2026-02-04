@@ -30,7 +30,7 @@ export async function GET() {
     if (!res.ok) {
       return NextResponse.json(
         { error: "Error al consultar la API externa" },
-        { status: 502 }
+        { status: 502 },
       );
     }
 
@@ -43,7 +43,7 @@ export async function GET() {
     if (!json.success || !Array.isArray(json.inmuebles)) {
       return NextResponse.json(
         { error: "Respuesta inesperada de la API externa" },
-        { status: 502 }
+        { status: 502 },
       );
     }
 
@@ -68,7 +68,7 @@ export async function GET() {
     console.error("Error fetching inmuebles:", error);
     return NextResponse.json(
       { error: "Error inesperado consultando la API" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -88,6 +88,9 @@ export function PricePerM2Histogram({
       backgroundColor: "transparent",
       height: 260,
     },
+    accessibility: {
+      enabled: false,
+    },
     title: { text: undefined },
     xAxis: {
       categories,
