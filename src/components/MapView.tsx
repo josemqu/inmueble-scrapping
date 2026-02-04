@@ -15,7 +15,7 @@ const AnyMarker = Marker as any;
 function getColorForPricePerM2(
   value: number | null,
   min: number | null,
-  max: number | null
+  max: number | null,
 ): string {
   if (value == null || !Number.isFinite(value)) return "#9ca3af";
 
@@ -67,13 +67,13 @@ function createMarkerIcon(
   pricePerM2: number | null,
   baseColor: string,
   inHighlightRange: boolean,
-  isActive: boolean
+  isActive: boolean,
 ) {
   const highlightClasses = isActive
     ? "ring-2 ring-red-500 shadow-red-500/40 scale-[1.1]"
     : inHighlightRange
-    ? "ring-2 ring-emerald-400 shadow-emerald-500/40 scale-[1.05]"
-    : "ring-1 ring-zinc-900/50";
+      ? "ring-2 ring-emerald-400 shadow-emerald-500/40 scale-[1.05]"
+      : "ring-1 ring-zinc-900/50";
 
   return divIcon({
     html: `
@@ -107,7 +107,9 @@ export function MapView({
   const [activeId, setActiveId] = useState<number | null>(null);
 
   const active =
-    activeId != null ? inmuebles.find((i) => i.id === activeId) ?? null : null;
+    activeId != null
+      ? (inmuebles.find((i) => i.id === activeId) ?? null)
+      : null;
 
   const priceValues = inmuebles
     .map((i) => i.pricePerM2)
@@ -117,22 +119,22 @@ export function MapView({
     pricePerM2Min != null && Number.isFinite(pricePerM2Min)
       ? pricePerM2Min
       : priceValues.length > 0
-      ? Math.min(...priceValues)
-      : null;
+        ? Math.min(...priceValues)
+        : null;
 
   const dynamicMax =
     pricePerM2Max != null && Number.isFinite(pricePerM2Max)
       ? pricePerM2Max
       : priceValues.length > 0
-      ? Math.max(...priceValues)
-      : null;
+        ? Math.max(...priceValues)
+        : null;
 
   return (
     <div className="relative h-full w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-950/90 shadow-xl">
       <AnyMapContainer
         center={MAR_DEL_PLATA_CENTER}
         zoom={12}
-        className="h-full w-full"
+        className="h-full w-full leaflet-tile-color-filter"
         scrollWheelZoom
       >
         <AnyTileLayer
@@ -152,14 +154,14 @@ export function MapView({
           const baseColor = getColorForPricePerM2(
             i.pricePerM2,
             dynamicMin,
-            dynamicMax
+            dynamicMax,
           );
 
           const markerIcon = createMarkerIcon(
             i.pricePerM2 ?? null,
             baseColor,
             inHighlightRange,
-            activeId === i.id
+            activeId === i.id,
           );
 
           return (

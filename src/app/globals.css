@@ -25,6 +25,11 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.leaflet-tile-color-filter .leaflet-tile {
+  filter: brightness(0.5) invert(1) contrast(3) hue-rotate(300deg) saturate(0.3)
+    brightness(0.7);
+}
+
 /* Leaflet popup: make wrapper transparent so only inner card is visible */
 .leaflet-popup {
   background: transparent !important;
