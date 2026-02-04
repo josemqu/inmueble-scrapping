@@ -4,18 +4,30 @@ const BASE_URL = "https://api.mardelinmueble.com/v3/mardelinmueble/inmuebles/";
 
 export async function GET(
   _request: Request,
-  context: { params: { id: string } },
+  context: { params: { id: string } | Promise<{ id: string }> },
 ) {
-  const { id } = context.params;
+  const params = await context.params;
+  const { id } = params;
 
   const url = `${BASE_URL}${encodeURIComponent(id)}`;
 
   try {
-    const res = await fetch(url, { next: { revalidate: 60 } });
+    const res = await fetch(url, {
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "inmueble-scrapping/1.0",
+      },
+    });
 
     if (!res.ok) {
+      const text = await res.text().catch(() => "");
       return NextResponse.json(
-        { error: "Error al consultar la API externa" },
+        {
+          error: "Error al consultar la API externa",
+          upstreamStatus: res.status,
+          upstreamBody: text.slice(0, 500),
+        },
         { status: 502 },
       );
     }
