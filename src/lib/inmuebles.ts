@@ -11,6 +11,7 @@ export type RawInmueble = {
   calle: string | null;
   numero: number | null;
   barrio_nombre: string | null;
+  imagen_principal?: string | null;
   casa_sup_cubierta?: string | null;
   casa_sup_terreno?: string | null;
   casa_ambientes?: number | null;
@@ -24,6 +25,7 @@ export type Inmueble = {
   lat: number;
   lng: number;
   priceUsd: number;
+  coverImageUrl: string | null;
   // Raw areas
   areaCubiertaM2: number | null;
   areaTerrenoM2: number | null;
@@ -110,12 +112,17 @@ export function mapRawToInmueble(raw: RawInmueble): Inmueble | null {
   const createdAt = raw.fecha_creacion ? new Date(raw.fecha_creacion) : null;
   const lastUpdate = raw.last_update ? new Date(raw.last_update) : null;
 
+  const coverImageUrl = raw.imagen_principal
+    ? `https://api.mardelinmueble.com/uploads/inmuebles/thumbnails/${raw.imagen_principal}`
+    : null;
+
   return {
     id: raw.id,
     title: raw.titulo,
     lat: raw.latitud,
     lng: raw.longitud,
     priceUsd,
+    coverImageUrl,
     areaCubiertaM2: hasCubierta ? supCubierta : null,
     areaTerrenoM2: hasTerreno ? supTerreno : null,
     areaM2,

@@ -184,6 +184,17 @@ export function MapView({
             }}
           >
             <div className="w-100 max-w-xs rounded-lg bg-zinc-950/95 p-3 shadow-xl ring-1 ring-zinc-800">
+              {active.coverImageUrl && (
+                <div className="mb-3 overflow-hidden rounded-md border border-zinc-800/60">
+                  <img
+                    src={active.coverImageUrl}
+                    alt={active.title}
+                    className="h-28 w-full object-cover"
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+              )}
               <div className="space-y-1">
                 <div className="text-[11px] font-medium uppercase tracking-wide text-zinc-400">
                   {active.barrio ?? "Sin barrio"}
