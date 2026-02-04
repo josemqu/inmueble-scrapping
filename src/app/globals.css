@@ -59,3 +59,32 @@ body {
   box-shadow: none !important;
   border: none !important;
 }
+
+@media (prefers-color-scheme: dark) {
+  .leaflet-control-zoom {
+    border: 1px solid #27272a !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+    box-shadow: 0 10px 25px -12px rgba(0, 0, 0, 0.6);
+  }
+
+  .leaflet-control-zoom a {
+    background: rgba(24, 24, 27, 0.92) !important;
+    color: #e4e4e7 !important;
+    border: none !important;
+  }
+
+  .leaflet-control-zoom a:hover {
+    background: rgba(39, 39, 42, 0.95) !important;
+    color: #fafafa !important;
+  }
+
+  .leaflet-control-zoom a.leaflet-disabled {
+    background: rgba(24, 24, 27, 0.55) !important;
+    color: rgba(228, 228, 231, 0.35) !important;
+  }
+
+  .leaflet-bar a + a {
+    border-top: 1px solid #27272a !important;
+  }
+}
