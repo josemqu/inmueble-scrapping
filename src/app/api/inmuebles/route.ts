@@ -30,7 +30,7 @@ export async function GET(request: Request) {
 
   try {
     const mardelPromise = fetch(url, {
-      next: { revalidate: 60 },
+      cache: "no-store",
     }).catch((e) => {
       console.error("Error fetching Mardel:", e);
       return null;
@@ -41,7 +41,7 @@ export async function GET(request: Request) {
         Accept: "application/json",
         "X-Requested-With": "XMLHttpRequest",
       },
-      next: { revalidate: 60 },
+      cache: "no-store",
     }).catch((e) => {
       console.error("Error fetching Robles:", e);
       return null;

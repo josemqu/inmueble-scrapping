@@ -4,6 +4,9 @@ import { useEffect, useState, useMemo } from "react";
 import type { ComponentType } from "react";
 import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMap } from "react-leaflet";
 import { divIcon } from "leaflet";
+import L from "leaflet";
+import "@geoman-io/leaflet-geoman-free";
+import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
 import "leaflet/dist/leaflet.css";
 import type { Inmueble } from "@/lib/inmuebles";
 import { InmueblePopupContent } from "@/components/InmueblePopupContent";
@@ -102,6 +105,7 @@ type MapViewProps = {
   pricePerM2Min?: number | null;
   pricePerM2Max?: number | null;
   highlightPricePerM2Range?: PricePerM2Range | null;
+  onPolygonChange: (polygon: number[][][] | null) => void;
 };
 
 function LocateMeControl({ position }: { position: [number, number] }) {
@@ -136,11 +140,179 @@ function LocateMeControl({ position }: { position: [number, number] }) {
   );
 }
 
+function GeomanControls({ onPolygonChange }: { onPolygonChange: (poly: number[][][] | null) => void }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map) return;
+
+    map.pm.addControls({
+      position: 'topright',
+      drawCircleMarker: false,
+      drawPolyline: false,
+      drawRectangle: true,
+      drawPolygon: true,
+      drawCircle: false,
+      drawMarker: false,
+      drawText: false,
+      editMode: false,
+      dragMode: false,
+      cutPolygon: false,
+      removalMode: false,
+    });
+
+    map.on('pm:create', (e: any) => {
+      const layer = e.layer;
+      
+      // Remove previous polygons to only have one
+      map.eachLayer((l: any) => {
+        if (l !== layer && (l instanceof L.Polygon) && (l as any).pm) {
+          map.removeLayer(l);
+        }
+      });
+
+      // Enable Edit and Drag mode specifically for this layer
+      if (layer instanceof L.Polygon && layer.pm) {
+        layer.pm.enable({
+          allowSelfIntersection: false,
+          draggable: true,
+        });
+      }
+
+      const updatePolygon = () => {
+        if (layer instanceof L.Polygon) {
+          const geojson = layer.toGeoJSON();
+          onPolygonChange(geojson.geometry.coordinates as number[][][]);
+        }
+      };
+
+      if (layer instanceof L.Polygon) {
+        updatePolygon();
+
+        // Add a "Trash Bin" button contextually (using a marker)
+        const deleteMarkerIcon = L.divIcon({
+          html: `<button class="flex h-8 w-8 items-center justify-center rounded-full bg-rose-500 text-white shadow-lg border border-white/20 hover:bg-rose-600 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+          </button>`,
+          className: '',
+          iconSize: [32, 32],
+          iconAnchor:[16, 16]
+        });
+
+        const deleteMarker = L.marker(layer.getBounds().getNorthEast(), {
+           icon: deleteMarkerIcon,
+           zIndexOffset: 2000
+        }).addTo(map);
+
+        deleteMarker.on('click', () => {
+           map.removeLayer(layer);
+           map.removeLayer(deleteMarker);
+           onPolygonChange(null);
+        });
+
+        const updateMarkersPos = () => {
+           controlsMarker.setLatLng(layer.getBounds().getNorthEast());
+        };
+
+        const controlsIcon = L.divIcon({
+          html: `<div class="flex items-center gap-1.5 rounded-full bg-slate-900 px-1.5 py-1 shadow-[0_4px_12px_rgba(0,0,0,0.5)] border border-white/20 backdrop-blur-md pointer-events-auto">
+            <div class="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-400 cursor-move pointer-events-none" title="Arrastra para mover">
+               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
+            </div>
+            <div class="h-4 w-[1px] bg-white/10"></div>
+            <button id="poly-delete-btn" class="flex h-7 w-7 items-center justify-center rounded-full bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white transition-all active:scale-90 cursor-pointer" title="Eliminar área">
+               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            </button>
+          </div>`,
+          className: '',
+          iconSize: [80, 40],
+          iconAnchor:[0, 42]
+        });
+
+        const controlsMarker = L.marker(layer.getBounds().getNorthEast(), {
+           icon: controlsIcon,
+           zIndexOffset: 2000,
+           interactive: true
+        }).addTo(map);
+
+        const setupBtn = () => {
+           const el = controlsMarker.getElement();
+           if (el) {
+              const btn = el.querySelector('#poly-delete-btn') as HTMLElement;
+              if (btn) {
+                 btn.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    map.removeLayer(layer);
+                    map.removeLayer(controlsMarker);
+                    onPolygonChange(null);
+                 };
+              }
+           }
+        };
+
+        // Try immediate and with a small delay to ensure DOM is ready
+        setupBtn();
+        setTimeout(setupBtn, 100);
+
+        // Listen for edits on this specific layer
+        layer.on('pm:edit', updatePolygon);
+        layer.on('pm:markerdrag', () => { updatePolygon(); updateMarkersPos(); });
+        layer.on('pm:markerdragend', updatePolygon);
+        layer.on('pm:vertexremoved', updatePolygon);
+        layer.on('pm:drag', () => { updatePolygon(); updateMarkersPos(); });
+        layer.on('pm:dragend', updatePolygon);
+        
+        // When layer is removed externally
+        layer.on('remove', () => {
+           if (map.hasLayer(controlsMarker)) map.removeLayer(controlsMarker);
+        });
+      }
+    });
+
+    map.on('pm:remove', () => {
+      onPolygonChange(null);
+    });
+
+    const handleDrawStart = () => {
+      map.dragging.disable();
+      map.touchZoom.disable();
+      map.doubleClickZoom.disable();
+      map.scrollWheelZoom.disable();
+      map.getContainer().classList.add('drawing-mode');
+    };
+
+    const handleDrawEnd = () => {
+      map.dragging.enable();
+      map.touchZoom.enable();
+      map.doubleClickZoom.enable();
+      map.scrollWheelZoom.enable();
+      map.getContainer().classList.remove('drawing-mode');
+    };
+
+    map.on('pm:drawstart', handleDrawStart);
+    map.on('pm:drawend', handleDrawEnd);
+
+    return () => {
+      map.pm.removeControls();
+      map.off('pm:create');
+      map.off('pm:remove');
+      map.off('pm:drawstart', handleDrawStart);
+      map.off('pm:drawend', handleDrawEnd);
+      // Ensure state is restored if component unmounts while drawing
+      handleDrawEnd();
+    };
+  }, [map, onPolygonChange]);
+
+  return null;
+}
+
 export function MapView({
   inmuebles,
   pricePerM2Min,
   pricePerM2Max,
   highlightPricePerM2Range,
+  onPolygonChange,
 }: MapViewProps) {
   const [activeId, setActiveId] = useState<number | null>(null);
   const [activeImages, setActiveImages] = useState<string[] | null>(null);
@@ -240,19 +412,8 @@ export function MapView({
     .map((i) => i.pricePerM2)
     .filter((v): v is number => v != null && Number.isFinite(v));
 
-  const dynamicMin =
-    pricePerM2Min != null && Number.isFinite(pricePerM2Min)
-      ? pricePerM2Min
-      : priceValues.length > 0
-        ? Math.min(...priceValues)
-        : null;
-
-  const dynamicMax =
-    pricePerM2Max != null && Number.isFinite(pricePerM2Max)
-      ? pricePerM2Max
-      : priceValues.length > 0
-        ? Math.max(...priceValues)
-        : null;
+  const dynamicMin = priceValues.length > 0 ? Math.min(...priceValues) : null;
+  const dynamicMax = priceValues.length > 0 ? Math.max(...priceValues) : null;
 
   return (
     <div className="relative h-full w-full overflow-hidden bg-slate-950">
@@ -261,9 +422,9 @@ export function MapView({
         zoom={12}
         className="h-full w-full leaflet-tile-color-filter"
         scrollWheelZoom
-        zoomControl={false}
-      >
+    >
         <ZoomControl position="topright" />
+        <GeomanControls onPolygonChange={onPolygonChange} />
         <AnyTileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
