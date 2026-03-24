@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Inmueble } from "@/lib/inmuebles";
+import { Building2, Trees } from "lucide-react";
 
 type InmueblePopupContentProps = {
   inmueble: Inmueble;
@@ -162,6 +163,18 @@ export function InmueblePopupContent({
       {carouselImage && (
         <div className="mb-3 overflow-hidden rounded-md border border-zinc-800/60">
           <div className="relative">
+            <div
+              className="absolute left-2 top-2 z-10 flex items-center justify-center auto-cols-auto rounded border border-white/10 bg-black/60 p-1 backdrop-blur-md"
+              title={
+                inmueble.source === "robles" ? "Origen: Los Robles" : "Origen: Mardelinmueble"
+              }
+            >
+              {inmueble.source === "robles" ? (
+                <Trees className="h-3.5 w-3.5 text-zinc-300" strokeWidth={2.5} />
+              ) : (
+                <Building2 className="h-3.5 w-3.5 text-zinc-300" strokeWidth={2.5} />
+              )}
+            </div>
             <div className="relative h-32 w-full overflow-hidden">
               {transitionToImage && transitionDirection ? (
                 <div

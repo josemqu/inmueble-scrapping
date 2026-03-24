@@ -40,6 +40,7 @@ export type Inmueble = {
   ambientes: number | null;
   createdAt: Date | null;
   lastUpdate: Date | null;
+  source: "mardelinmueble" | "robles";
 };
 
 export type BarrioStats = {
@@ -175,6 +176,7 @@ export function mapRawToInmueble(raw: RawInmueble): Inmueble | null {
         : null,
     createdAt,
     lastUpdate,
+    source: "mardelinmueble",
   };
 }
 
@@ -326,5 +328,6 @@ export function mapRoblesToInmueble(raw: RoblesInmueble): Inmueble | null {
     ambientes: raw.room_amount || null,
     createdAt: null,
     lastUpdate: null,
+    source: "robles",
   };
 }
