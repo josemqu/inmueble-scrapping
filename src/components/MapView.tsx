@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import type { ComponentType } from "react";
-import { MapContainer, TileLayer, Marker, Popup, ZoomControl } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMap } from "react-leaflet";
 import { divIcon } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { Inmueble } from "@/lib/inmuebles";
@@ -104,6 +104,38 @@ type MapViewProps = {
   highlightPricePerM2Range?: PricePerM2Range | null;
 };
 
+function LocateMeControl({ position }: { position: [number, number] }) {
+  const map = useMap();
+
+  return (
+    <div className="leaflet-bottom leaflet-left pointer-events-auto mb-4 ml-4">
+      <button
+        onClick={() => map.flyTo(position, 15)}
+        className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 border border-white/20 text-white shadow-lg backdrop-blur-md transition-all hover:bg-slate-800 hover:scale-105 active:scale-95"
+        title="Centrar en mi ubicación"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="12" cy="12" r="3" />
+          <path d="M12 2v3" />
+          <path d="M12 19v3" />
+          <path d="M22 12h-3" />
+          <path d="M5 12H2" />
+        </svg>
+      </button>
+    </div>
+  );
+}
+
 export function MapView({
   inmuebles,
   pricePerM2Min,
@@ -112,6 +144,7 @@ export function MapView({
 }: MapViewProps) {
   const [activeId, setActiveId] = useState<number | null>(null);
   const [activeImages, setActiveImages] = useState<string[] | null>(null);
+  const [userPosition, setUserPosition] = useState<[number, number] | null>(null);
 
   const activate = (inmueble: Inmueble) => {
     if (activeId === inmueble.id) return;
@@ -155,6 +188,41 @@ export function MapView({
       cancelled = true;
     };
   }, [activeId]);
+
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+
+    const watcher = navigator.geolocation.watchPosition(
+      (position) => {
+        setUserPosition([position.coords.latitude, position.coords.longitude]);
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 10000,
+        timeout: 5000,
+      }
+    );
+
+    return () => navigator.geolocation.clearWatch(watcher);
+  }, []);
+
+  const userLocationIcon = useMemo(() => {
+    return divIcon({
+      html: `
+        <div class="relative">
+          <div class="absolute -inset-4 rounded-full bg-blue-500/20 animate-pulse"></div>
+          <div class="absolute -inset-2 rounded-full bg-blue-500/40 animate-ping"></div>
+          <div class="relative flex h-4 w-4 rounded-full border-2 border-white bg-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.6)]"></div>
+        </div>
+      `,
+      className: "",
+      iconSize: [16, 16],
+      iconAnchor: [8, 8],
+    });
+  }, []);
 
   const carouselImages = useMemo(() => {
     const base = 
@@ -201,6 +269,8 @@ export function MapView({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
+        {userPosition && <LocateMeControl position={userPosition} />}
+
         {inmuebles.map((i) => {
           const value = i.pricePerM2;
           const inHighlightRange =
@@ -234,6 +304,14 @@ export function MapView({
             />
           );
         })}
+
+        {userPosition && (
+          <AnyMarker
+            position={userPosition}
+            icon={userLocationIcon}
+            zIndexOffset={1000}
+          />
+        )}
 
         {active && (
           <Popup
