@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import type { ComponentType } from "react";
 import { MapContainer, TileLayer, Marker, Popup, ZoomControl } from "react-leaflet";
 import { divIcon } from "leaflet";
@@ -156,14 +156,17 @@ export function MapView({
     };
   }, [activeId]);
 
-  const carouselImages =
-    activeImages && activeImages.length > 0
-      ? activeImages
-      : active?.galleryUrls && active.galleryUrls.length > 0
-        ? active.galleryUrls
-        : active?.coverImageUrl
-          ? [active.coverImageUrl]
-          : [];
+  const carouselImages = useMemo(() => {
+    const base = 
+      activeImages && activeImages.length > 0
+        ? activeImages
+        : active?.galleryUrls && active.galleryUrls.length > 0
+          ? active.galleryUrls
+          : active?.coverImageUrl
+            ? [active.coverImageUrl]
+            : [];
+    return base.filter((url): url is string => !!url && typeof url === "string" && url.trim().length > 0);
+  }, [activeImages, active?.galleryUrls, active?.coverImageUrl]);
 
   const priceValues = inmuebles
     .map((i) => i.pricePerM2)

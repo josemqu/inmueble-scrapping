@@ -22,6 +22,15 @@ export function InmueblePopupContent({
   const [animateTrack, setAnimateTrack] = useState(false);
   const [loadedByUrl, setLoadedByUrl] = useState<Record<string, boolean>>({});
   const inflightRef = useRef<Set<string>>(new Set());
+  
+  const ageInDays = useMemo(() => {
+    const date = inmueble.lastUpdate ?? inmueble.createdAt;
+    if (!date) return null;
+    const refDate = date instanceof Date ? date : new Date(date as unknown as string);
+    if (isNaN(refDate.getTime())) return null;
+    const diff = new Date().getTime() - refDate.getTime();
+    return Math.floor(diff / (1000 * 60 * 60 * 24));
+  }, [inmueble.createdAt, inmueble.lastUpdate]);
 
   const markLoaded = (url: string) => {
     setLoadedByUrl((prev) => (prev[url] ? prev : { ...prev, [url]: true }));
@@ -86,20 +95,22 @@ export function InmueblePopupContent({
   }, [isTransitioning, transitionDirection, transitionToIndex]);
 
   const carouselImage = useMemo(() => {
-    if (carouselImages.length === 0) return null;
+    if (carouselImages.length === 0) return "";
     const idx = Math.min(activeImageIndex, carouselImages.length - 1);
-    return carouselImages[idx] ?? null;
+    return carouselImages[idx] || "";
   }, [activeImageIndex, carouselImages]);
 
   const handlePrevImage = () => {
     if (carouselImages.length <= 1) return;
     if (isTransitioning) return;
 
+    const currentId = inmueble.id;
     const nextIndex =
       activeImageIndex <= 0 ? carouselImages.length - 1 : activeImageIndex - 1;
     const nextUrl = carouselImages[nextIndex];
     if (nextUrl && !loadedByUrl[nextUrl]) {
       void ensurePreloaded(nextUrl).then(() => {
+        if (inmueble.id !== currentId) return;
         setTransitionDirection("prev");
         setTransitionToIndex(nextIndex);
         setIsTransitioning(true);
@@ -117,11 +128,13 @@ export function InmueblePopupContent({
     if (carouselImages.length <= 1) return;
     if (isTransitioning) return;
 
+    const currentId = inmueble.id;
     const nextIndex =
       activeImageIndex >= carouselImages.length - 1 ? 0 : activeImageIndex + 1;
     const nextUrl = carouselImages[nextIndex];
     if (nextUrl && !loadedByUrl[nextUrl]) {
       void ensurePreloaded(nextUrl).then(() => {
+        if (inmueble.id !== currentId) return;
         setTransitionDirection("next");
         setTransitionToIndex(nextIndex);
         setIsTransitioning(true);
@@ -137,8 +150,8 @@ export function InmueblePopupContent({
 
   const transitionToImage =
     transitionToIndex != null
-      ? (carouselImages[transitionToIndex] ?? null)
-      : null;
+      ? (carouselImages[transitionToIndex] || "")
+      : "";
 
   const finishTransition = () => {
     if (transitionToIndex == null) return;
@@ -160,11 +173,11 @@ export function InmueblePopupContent({
 
   return (
     <div className="w-72 max-w-[calc(100vw-40px)] rounded-2xl bg-slate-950/90 p-4 shadow-2xl backdrop-blur-2xl border border-white/10">
-      {carouselImage && (
+      {carouselImages.length > 0 && (
         <div className="mb-4 overflow-hidden rounded-xl border border-white/5 bg-slate-900/40 shadow-inner">
           <div className="relative">
             <div
-              className="absolute left-3 top-3 z-10 flex items-center justify-center rounded-xl border border-white/10 bg-slate-950/60 p-1.5 backdrop-blur-md shadow-lg"
+              className="absolute left-3 top-3 z-10 flex items-center justify-center rounded-xl border border-white/10 bg-slate-950/60 p-1.5 backdrop-blur-md shadow-lg transition-transform hover:scale-110"
               title={
                 inmueble.source === "robles" ? "Origen: Los Robles" : "Origen: Mardelinmueble"
               }
@@ -175,6 +188,13 @@ export function InmueblePopupContent({
                 <Building2 className="h-4 w-4 text-indigo-400" strokeWidth={2.5} />
               )}
             </div>
+
+            {ageInDays != null && ageInDays <= 30 && (
+              <div className="absolute right-3 top-3 z-10 flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-500/80 px-2 py-0.5 text-[9px] font-bold text-white backdrop-blur-md shadow-lg animate-pulse">
+                <span className="h-1.5 w-1.5 rounded-full bg-white"></span>
+                {ageInDays === 0 ? "HOY" : ageInDays <= 7 ? "NUEVO" : "RECIENTE"}
+              </div>
+            )}
             
             <div className="relative h-40 w-full overflow-hidden">
               {transitionToImage && transitionDirection ? (
@@ -344,8 +364,21 @@ export function InmueblePopupContent({
             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           </a>
           
-          <div className="text-[9px] font-medium text-slate-500">
-            ID {inmueble.id}
+          <div className="flex flex-col items-end gap-1">
+            <span className={`text-[9px] font-bold uppercase tracking-tight px-1.5 py-0.5 rounded-md ${
+              ageInDays != null && ageInDays <= 7 
+                ? "bg-emerald-500/20 text-emerald-400" 
+                : ageInDays != null && ageInDays <= 30 
+                  ? "bg-indigo-500/20 text-indigo-400"
+                  : "bg-slate-500/20 text-slate-500"
+            }`}>
+              {ageInDays != null 
+                ? (ageInDays === 0 ? "Hoy" : `${ageInDays} ${ageInDays === 1 ? 'día' : 'días'}`)
+                : "—"}
+            </span>
+            <div className="text-[8px] font-medium text-slate-600">
+              #{inmueble.id}
+            </div>
           </div>
         </div>
       </div>

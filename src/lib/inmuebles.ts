@@ -296,7 +296,7 @@ export function mapRoblesToInmueble(raw: RoblesInmueble): Inmueble | null {
   const areaM2 = Number.isFinite(surface) && surface > 0 ? surface : null;
 
   let pricePerM2 = null;
-  if (areaM2 && areaM2 > 20) {
+  if (areaM2 && areaM2 > 30) {
     pricePerM2 = price / areaM2;
   }
 
@@ -315,6 +315,32 @@ export function mapRoblesToInmueble(raw: RoblesInmueble): Inmueble | null {
   // Offset ID para no colisionar con Mardel Inmueble
   const finalId = Number.isFinite(numericId) ? 800000000 + numericId : 800000000 + Math.floor(Math.random() * 1000000);
 
+  // Heurística de antigüedad basada en ID de Tokko Broker (aprox 7.8M es Marzo 2025)
+  // Usamos una tasa aproximada de 10000 IDs por día para que 7.5M sea aprox 1 mes atrás
+  let estimatedDate = null;
+  if (numericId && Number.isFinite(numericId)) {
+    const baselineId = 7886539;
+    const baselineDate = new Date("2025-03-24").getTime();
+    const diff = baselineId - numericId;
+    // Si el ID es mayor al baseline, asumimos hoy
+    // Usamos una tasa mayor para no ser tan castigadores con los IDs ligeramente menores
+    const daysOffset = Math.max(0, diff / 10000);
+    estimatedDate = new Date(baselineDate - daysOffset * 24 * 60 * 60 * 1000);
+  }
+
+  // Extraer calle y número si es posible (formato "Nombre 1234")
+  let calle = raw.address || null;
+  let numero: number | null = null;
+  if (calle && calle.includes(" ")) {
+    const parts = calle.trim().split(" ");
+    const lastPart = parts[parts.length - 1];
+    const n = parseInt(lastPart, 10);
+    if (!isNaN(n) && n > 0 && n < 20000) { // Un filtro básico para no capturar años o cosas raras
+      numero = n;
+      calle = parts.slice(0, parts.length - 1).join(" ");
+    }
+  }
+
   return {
     id: finalId,
     title: raw.publication_title || "",
@@ -325,15 +351,15 @@ export function mapRoblesToInmueble(raw: RoblesInmueble): Inmueble | null {
     coverImageUrl: coverImg,
     galleryUrls,
     areaCubiertaM2: areaM2,
-    areaTerrenoM2: null,
+    areaTerrenoM2: areaM2, // Normalizamos para que pasen los filtros de superficie
     areaM2,
     pricePerM2,
     barrio: raw.location?.name || null,
-    calle: toProperCase(raw.address || null) || null,
-    numero: null,
+    calle: toProperCase(calle),
+    numero,
     ambientes: raw.room_amount || null,
-    createdAt: null,
-    lastUpdate: null,
+    createdAt: estimatedDate,
+    lastUpdate: estimatedDate,
     source: "robles",
   };
 }

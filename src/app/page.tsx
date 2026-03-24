@@ -25,7 +25,7 @@ type State = {
   maxAgeDays: number | null;
   idTipoOperacion: string;
   idTipoInmueble: string;
-  idCiudad: string;
+  selectedSource: string;
 };
 
 type HistogramRange = { min: number; max: number };
@@ -47,7 +47,7 @@ const initialState: State = {
   maxAgeDays: null,
   idTipoOperacion: "1",
   idTipoInmueble: "1",
-  idCiudad: "1",
+  selectedSource: "all",
 };
 
 export default function Home() {
@@ -66,7 +66,7 @@ export default function Home() {
         const query = new URLSearchParams({
           id_tipo_operacion: state.idTipoOperacion,
           id_tipo_inmueble: state.idTipoInmueble,
-          id_ciudad: state.idCiudad,
+          id_ciudad: "1", // Hardcoded a Mar del Plata
         });
         const res = await fetch(`/api/inmuebles?${query.toString()}`);
         if (!res.ok) {
@@ -96,7 +96,7 @@ export default function Home() {
     return () => {
       cancelled = true;
     };
-  }, [state.idTipoOperacion, state.idTipoInmueble, state.idCiudad]);
+  }, [state.idTipoOperacion, state.idTipoInmueble]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -116,7 +116,7 @@ export default function Home() {
           maxAgeDays: parsed.maxAgeDays ?? prev.maxAgeDays,
           idTipoOperacion: parsed.idTipoOperacion ?? prev.idTipoOperacion,
           idTipoInmueble: parsed.idTipoInmueble ?? prev.idTipoInmueble,
-          idCiudad: parsed.idCiudad ?? prev.idCiudad,
+          selectedSource: parsed.selectedSource ?? prev.selectedSource,
         }));
       }
 
@@ -143,7 +143,7 @@ export default function Home() {
         maxAgeDays: state.maxAgeDays,
         idTipoOperacion: state.idTipoOperacion,
         idTipoInmueble: state.idTipoInmueble,
-        idCiudad: state.idCiudad,
+        selectedSource: state.selectedSource,
       };
 
       window.localStorage.setItem(
@@ -167,7 +167,7 @@ export default function Home() {
     state.maxAgeDays,
     state.idTipoOperacion,
     state.idTipoInmueble,
-    state.idCiudad,
+    state.selectedSource,
     filtersOpen,
   ]);
 
@@ -178,9 +178,14 @@ export default function Home() {
     state.priceTotalMax == null &&
     state.areaTerrenoMin == null &&
     state.areaTerrenoMax == null &&
-    state.maxAgeDays == null
+    state.maxAgeDays == null &&
+    state.selectedSource === "all"
       ? state.inmuebles
       : state.inmuebles.filter((i) => {
+          if (state.selectedSource !== "all" && i.source !== state.selectedSource) {
+            return false;
+          }
+
           if (state.maxAgeDays != null && state.maxAgeDays > 0) {
             const referenceDate = i.lastUpdate ?? i.createdAt;
             // Si no hay fecha, no aplicamos el filtro de antigüedad a este inmueble
@@ -257,14 +262,7 @@ export default function Home() {
 
 
 
-  const cityName =
-    state.idCiudad === "1"
-      ? "Mar del Plata"
-      : state.idCiudad === "4"
-        ? "Pinamar"
-        : state.idCiudad === "5"
-          ? "Villa Gesell"
-          : "Seleccionada";
+  const cityName = "Mar del Plata";
 
   const hasFiltersActive =
     state.pricePerM2Min != null ||
@@ -273,7 +271,8 @@ export default function Home() {
     state.areaTerrenoMax != null ||
     state.priceTotalMin != null ||
     state.priceTotalMax != null ||
-    state.maxAgeDays != null;
+    state.maxAgeDays != null ||
+    state.selectedSource !== "all";
 
   const renderFiltersContent = () => (
     <div className="flex flex-col gap-4">
@@ -281,14 +280,14 @@ export default function Home() {
       <div className="grid grid-cols-2 gap-3">
         <select
           className="h-11 w-full rounded-xl border border-white/10 bg-slate-800/40 px-4 text-xs font-medium text-slate-200 outline-none backdrop-blur-md transition-colors focus:border-indigo-400 focus:bg-slate-800/60"
-          value={state.idCiudad}
+          value={state.selectedSource}
           onChange={(e) =>
-            setState((prev) => ({ ...prev, idCiudad: e.target.value }))
+            setState((prev) => ({ ...prev, selectedSource: e.target.value }))
           }
         >
-          <option value="1">Mar del Plata</option>
-          <option value="4">Pinamar</option>
-          <option value="5">Villa Gesell</option>
+          <option value="all">Todos los Orígenes</option>
+          <option value="robles">Los Robles</option>
+          <option value="mardelinmueble">MardelInmueble</option>
         </select>
 
         <select
@@ -454,6 +453,35 @@ export default function Home() {
             />
           </div>
         </div>
+
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              Antigüedad Máx (Días)
+            </span>
+            {state.maxAgeDays != null && (
+              <button 
+                onClick={() => setState(prev => ({ ...prev, maxAgeDays: null }))}
+                className="text-[9px] font-bold text-indigo-400 uppercase tracking-tighter"
+              > Limpiar </button>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              placeholder="Ej: 30"
+              className="h-10 w-full rounded-xl border border-white/5 bg-slate-950/40 px-3 text-xs text-slate-100 outline-none transition-colors focus:border-indigo-400"
+              value={state.maxAgeDays ?? ""}
+              onChange={(e) => {
+                const v = parseInt(e.target.value, 10);
+                setState((prev) => ({
+                  ...prev,
+                  maxAgeDays: Number.isNaN(v) ? null : v,
+                }));
+              }}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -507,6 +535,7 @@ export default function Home() {
                         priceTotalMin: null,
                         priceTotalMax: null,
                         maxAgeDays: null,
+                        selectedSource: "all",
                       }))
                     }
                     className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 hover:text-indigo-300 transition-colors"
