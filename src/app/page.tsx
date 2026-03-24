@@ -5,7 +5,6 @@ import dynamic from "next/dynamic";
 import type { BarrioStats, Inmueble, InmueblesResponse } from "@/lib/inmuebles";
 import { StatsPanel } from "@/components/StatsPanel";
 import { PricePerM2Histogram } from "@/components/PricePerM2Histogram";
-import * as turf from "@turf/turf";
 
 const MapView = dynamic(
   () => import("@/components/MapView").then((m) => m.MapView),
@@ -27,7 +26,6 @@ type State = {
   idTipoOperacion: string;
   idTipoInmueble: string;
   selectedSource: string;
-  selectedPolygon: number[][][] | null; 
 };
 
 type HistogramRange = { min: number; max: number };
@@ -50,7 +48,6 @@ const initialState: State = {
   idTipoOperacion: "1",
   idTipoInmueble: "1",
   selectedSource: "all",
-  selectedPolygon: null,
 };
 
 export default function Home() {
@@ -182,23 +179,9 @@ export default function Home() {
     state.areaTerrenoMin == null &&
     state.areaTerrenoMax == null &&
     state.maxAgeDays == null &&
-    state.selectedSource === "all" &&
-    state.selectedPolygon == null
+    state.selectedSource === "all"
       ? state.inmuebles
       : state.inmuebles.filter((i) => {
-          if (state.selectedPolygon) {
-            try {
-              const pt = turf.point([i.lng, i.lat]);
-              const poly = turf.polygon(state.selectedPolygon);
-              if (!turf.booleanPointInPolygon(pt, poly)) {
-                return false;
-              }
-            } catch (e) {
-              console.error("Error in polygon filtering:", e);
-              // Fallback to true or false? If polygon is invalid, maybe don't filter.
-            }
-          }
-
           if (state.selectedSource !== "all" && i.source !== state.selectedSource) {
             return false;
           }
@@ -289,8 +272,7 @@ export default function Home() {
     state.priceTotalMin != null ||
     state.priceTotalMax != null ||
     state.maxAgeDays != null ||
-    state.selectedSource !== "all" ||
-    state.selectedPolygon != null;
+    state.selectedSource !== "all";
 
   const renderFiltersContent = () => (
     <div className="flex flex-col gap-4">
@@ -516,7 +498,6 @@ export default function Home() {
           pricePerM2Min={state.pricePerM2Min}
           pricePerM2Max={state.pricePerM2Max}
           highlightPricePerM2Range={histogramSelectedRange}
-          onPolygonChange={(poly) => setState(prev => ({ ...prev, selectedPolygon: poly }))}
         />
       </main>
 
@@ -555,7 +536,6 @@ export default function Home() {
                         priceTotalMax: null,
                         maxAgeDays: null,
                         selectedSource: "all",
-                        selectedPolygon: null,
                       }))
                     }
                     className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 hover:text-indigo-300 transition-colors"

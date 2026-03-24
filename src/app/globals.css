@@ -151,10 +151,3 @@ html {
     border-top: 1px solid #27272a !important;
   }
 }
-
-/* Fix for drawing cursor */
-.leaflet-container.drawing-mode,
-.leaflet-container.drawing-mode .leaflet-interactive,
-.leaflet-container.drawing-mode .leaflet-tile-container {
-  cursor: crosshair !important;
-}
