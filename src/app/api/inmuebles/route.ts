@@ -9,13 +9,18 @@ import {
 
 const BASE_URL = "https://api.mardelinmueble.com/v3/mardelinmueble/inmuebles/";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams: urlParams } = new URL(request.url);
+  const idTipoOperacion = urlParams.get("id_tipo_operacion") ?? "1";
+  const idTipoInmueble = urlParams.get("id_tipo_inmueble") ?? "1";
+  const idCiudad = urlParams.get("id_ciudad") ?? "1";
+
   const searchParams = new URLSearchParams({
     page: "1",
     items_x_page: "600",
-    id_tipo_operacion: "1",
-    id_tipo_inmueble: "1",
-    id_ciudad: "1",
+    id_tipo_operacion: idTipoOperacion,
+    id_tipo_inmueble: idTipoInmueble,
+    id_ciudad: idCiudad,
   });
 
   const url = `${BASE_URL}?${searchParams.toString()}`;

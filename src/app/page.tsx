@@ -23,6 +23,9 @@ type State = {
   areaTerrenoMin: number | null;
   areaTerrenoMax: number | null;
   maxAgeDays: number | null;
+  idTipoOperacion: string;
+  idTipoInmueble: string;
+  idCiudad: string;
 };
 
 type HistogramRange = { min: number; max: number };
@@ -42,6 +45,9 @@ const initialState: State = {
   areaTerrenoMin: null,
   areaTerrenoMax: null,
   maxAgeDays: null,
+  idTipoOperacion: "1",
+  idTipoInmueble: "1",
+  idCiudad: "1",
 };
 
 export default function Home() {
@@ -54,8 +60,14 @@ export default function Home() {
     let cancelled = false;
 
     const load = async () => {
+      setState((prev) => ({ ...prev, loading: true }));
       try {
-        const res = await fetch("/api/inmuebles");
+        const query = new URLSearchParams({
+          id_tipo_operacion: state.idTipoOperacion,
+          id_tipo_inmueble: state.idTipoInmueble,
+          id_ciudad: state.idCiudad,
+        });
+        const res = await fetch(`/api/inmuebles?${query.toString()}`);
         if (!res.ok) {
           throw new Error("Error al cargar datos");
         }
@@ -83,7 +95,7 @@ export default function Home() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [state.idTipoOperacion, state.idTipoInmueble, state.idCiudad]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -101,6 +113,9 @@ export default function Home() {
           areaTerrenoMin: parsed.areaTerrenoMin ?? prev.areaTerrenoMin,
           areaTerrenoMax: parsed.areaTerrenoMax ?? prev.areaTerrenoMax,
           maxAgeDays: parsed.maxAgeDays ?? prev.maxAgeDays,
+          idTipoOperacion: parsed.idTipoOperacion ?? prev.idTipoOperacion,
+          idTipoInmueble: parsed.idTipoInmueble ?? prev.idTipoInmueble,
+          idCiudad: parsed.idCiudad ?? prev.idCiudad,
         }));
       }
 
@@ -125,6 +140,9 @@ export default function Home() {
         areaTerrenoMin: state.areaTerrenoMin,
         areaTerrenoMax: state.areaTerrenoMax,
         maxAgeDays: state.maxAgeDays,
+        idTipoOperacion: state.idTipoOperacion,
+        idTipoInmueble: state.idTipoInmueble,
+        idCiudad: state.idCiudad,
       };
 
       window.localStorage.setItem(
@@ -146,6 +164,9 @@ export default function Home() {
     state.areaTerrenoMin,
     state.areaTerrenoMax,
     state.maxAgeDays,
+    state.idTipoOperacion,
+    state.idTipoInmueble,
+    state.idCiudad,
     filtersOpen,
   ]);
 
@@ -239,7 +260,14 @@ export default function Home() {
         <header className="flex flex-col gap-1">
           <div className="space-y-1">
             <h1 className="text-lg font-semibold tracking-tight md:text-xl">
-              Análisis de valor m² · Mar del Plata
+              Análisis de valor m² ·{" "}
+              {state.idCiudad === "1"
+                ? "Mar del Plata"
+                : state.idCiudad === "4"
+                  ? "Pinamar"
+                  : state.idCiudad === "5"
+                    ? "Villa Gesell"
+                    : "Seleccionada"}
             </h1>
             <p className="max-w-xl text-[11px] text-zinc-500 md:text-xs">
               Datos en tiempo real desde la API de Mar del Inmueble. Explorá
@@ -272,6 +300,56 @@ export default function Home() {
                 {filtersOpen && (
                   <div className="w-full max-w-xl rounded-2xl border border-zinc-800 bg-zinc-950/95 p-4 text-[11px] text-zinc-300 shadow-xl backdrop-blur">
                     <div className="flex flex-col gap-3">
+                      <div className="flex w-full flex-wrap items-center gap-2 md:gap-3">
+                        <select
+                          className="flex-1 min-w-[120px] rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
+                          value={state.idCiudad}
+                          onChange={(e) =>
+                            setState((prev) => ({
+                              ...prev,
+                              idCiudad: e.target.value,
+                            }))
+                          }
+                        >
+                          <option value="1">Mar del Plata</option>
+                          <option value="4">Pinamar</option>
+                          <option value="5">Villa Gesell</option>
+                        </select>
+
+                        <select
+                          className="flex-1 min-w-[120px] rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
+                          value={state.idTipoOperacion}
+                          onChange={(e) =>
+                            setState((prev) => ({
+                              ...prev,
+                              idTipoOperacion: e.target.value,
+                            }))
+                          }
+                        >
+                          <option value="1">Venta</option>
+                          <option value="2">Alquiler</option>
+                          <option value="3">Alquiler Temporario</option>
+                        </select>
+
+                        <select
+                          className="flex-1 min-w-[120px] rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
+                          value={state.idTipoInmueble}
+                          onChange={(e) =>
+                            setState((prev) => ({
+                              ...prev,
+                              idTipoInmueble: e.target.value,
+                            }))
+                          }
+                        >
+                          <option value="1">Casas</option>
+                          <option value="2">Departamentos</option>
+                          <option value="3">Locales</option>
+                          <option value="4">Terrenos</option>
+                          <option value="5">Quintas</option>
+                          <option value="6">Cocheras</option>
+                        </select>
+                      </div>
+
                       <div className="flex w-full flex-nowrap items-center gap-2 md:gap-3">
                         <span className="w-40 shrink-0 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
                           Filtro precio / m²

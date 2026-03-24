@@ -367,11 +367,28 @@ export function InmueblePopupContent({
         </div>
 
         <div className="flex items-center justify-between pt-1">
-          <div className="inline-flex items-center gap-1 rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] text-zinc-100">
-            <span>Ambientes</span>
-            <span className="font-semibold">
-              {inmueble.ambientes != null ? inmueble.ambientes : "—"}
-            </span>
+          <div className="flex items-center gap-2">
+            <div className="inline-flex items-center gap-1 rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] text-zinc-100">
+              <span>Ambientes</span>
+              <span className="font-semibold">
+                {inmueble.ambientes != null ? inmueble.ambientes : "—"}
+              </span>
+            </div>
+
+            {(() => {
+              const pubDate = inmueble.lastUpdate ?? inmueble.createdAt;
+              if (!pubDate) return null;
+              const diffMs = new Date().getTime() - new Date(pubDate).getTime();
+              const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+              return (
+                <div className="inline-flex items-center gap-1 rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] text-zinc-100">
+                  <span>Hace</span>
+                  <span className="font-semibold">
+                    {diffDays === 0 ? "hoy" : `${diffDays} d`}
+                  </span>
+                </div>
+              );
+            })()}
           </div>
 
           <div className="text-[10px] font-medium text-zinc-500">
