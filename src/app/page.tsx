@@ -590,13 +590,24 @@ export default function Home() {
       {/* 3. MOBILE: GLASS HUD */}
       <div className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-between md:hidden">
         {/* Top Header Block */}
-        <div className="pointer-events-auto w-full bg-slate-900/70 px-6 py-5 pt-12 backdrop-blur-3xl border-b border-white/10 rounded-b-[24px] shadow-2xl scrollbar-hide">
-          <h1 className="text-xl font-bold tracking-tight text-white">
-            Atlas <span className="text-indigo-400">Inmuebles</span>
-          </h1>
-          <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-            {cityName} · <span className="text-white">{filteredInmuebles.length}</span> Resultados
-          </p>
+        <div className="pointer-events-none absolute top-0 left-0 right-0 z-20 flex justify-center p-4 pt-12">
+          <header className="pointer-events-auto flex items-center gap-4 rounded-2xl border border-white/10 bg-slate-900/60 px-5 py-3 backdrop-blur-2xl shadow-2xl ring-1 ring-white/10 transition-all hover:bg-slate-900/80">
+            <div className="flex flex-col">
+              <h1 className="text-base font-extrabold tracking-tight text-white flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]"></span>
+                Atlas <span className="text-indigo-400 font-bold">Inmuebles</span>
+              </h1>
+              <div className="flex items-center gap-2">
+                <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-500">
+                  {cityName}
+                </p>
+                <div className="h-1 w-1 rounded-full bg-slate-700"></div>
+                <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-400">
+                  <span className="text-white">{filteredInmuebles.length}</span> Inmuebles
+                </p>
+              </div>
+            </div>
+          </header>
         </div>
 
         {/* Mobile Floating Action Buttons */}
