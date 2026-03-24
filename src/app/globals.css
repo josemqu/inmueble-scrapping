@@ -120,6 +120,17 @@ html {
     box-shadow: 0 10px 25px -12px rgba(0, 0, 0, 0.6);
   }
 
+  /* Center top-right zoom controls vertically */
+  .leaflet-top.leaflet-right {
+    top: 50% !important;
+    transform: translateY(-50%);
+  }
+
+  .leaflet-top.leaflet-right .leaflet-control {
+    margin-top: 0 !important;
+    margin-right: 12px !important;
+  }
+
   .leaflet-control-zoom a {
     background: rgba(24, 24, 27, 0.92) !important;
     color: #e4e4e7 !important;
