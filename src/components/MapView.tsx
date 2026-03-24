@@ -113,9 +113,10 @@ export function MapView({
   const [activeId, setActiveId] = useState<number | null>(null);
   const [activeImages, setActiveImages] = useState<string[] | null>(null);
 
-  const activate = (id: number) => {
-    setActiveId(id);
-    setActiveImages(null);
+  const activate = (inmueble: Inmueble) => {
+    if (activeId === inmueble.id) return;
+    setActiveId(inmueble.id);
+    setActiveImages(inmueble.galleryUrls && inmueble.galleryUrls.length > 0 ? inmueble.galleryUrls : null);
   };
 
   const deactivate = () => {
@@ -225,7 +226,7 @@ export function MapView({
               position={[i.lat, i.lng]}
               icon={markerIcon}
               eventHandlers={{
-                click: () => activate(i.id),
+                click: () => activate(i),
               }}
             />
           );
@@ -238,10 +239,12 @@ export function MapView({
               remove: () => deactivate(),
             }}
           >
-            <InmueblePopupContent
-              inmueble={active}
-              carouselImages={carouselImages}
-            />
+            <div className="popup-content-animate">
+              <InmueblePopupContent
+                inmueble={active}
+                carouselImages={carouselImages}
+              />
+            </div>
           </Popup>
         )}
       </AnyMapContainer>

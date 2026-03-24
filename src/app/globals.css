@@ -12,6 +12,19 @@
   --color-foreground: var(--foreground);
   --color-accent: var(--accent);
   --font-sans: 'Plus Jakarta Sans', sans-serif;
+  
+  --animate-popup-in: popup-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  
+  @keyframes popup-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
 }
 
 html {
@@ -81,6 +94,11 @@ html {
 
 .leaflet-popup-content {
   margin: 0 !important;
+  width: auto !important;
+}
+
+.popup-content-animate {
+  animation: var(--animate-popup-in);
 }
 
 /* Tip under the popup */

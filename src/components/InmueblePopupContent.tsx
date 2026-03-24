@@ -57,7 +57,7 @@ export function InmueblePopupContent({
     setAnimateTrack(false);
     setLoadedByUrl({});
     inflightRef.current = new Set();
-  }, [carouselImages]);
+  }, [inmueble.id]);
 
   useEffect(() => {
     if (carouselImages.length === 0) return;

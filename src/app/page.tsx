@@ -326,15 +326,23 @@ export default function Home() {
       </select>
 
       <div className="mt-2 flex flex-col gap-3">
-        <div className="flex items-center gap-3">
-          <span className="w-20 shrink-0 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-            Val / M²
-          </span>
-          <div className="flex flex-1 items-center gap-2">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              Val / M² (USD)
+            </span>
+            {(state.pricePerM2Min != null || state.pricePerM2Max != null) && (
+              <button 
+                onClick={() => setState(prev => ({ ...prev, pricePerM2Min: null, pricePerM2Max: null }))}
+                className="text-[9px] font-bold text-indigo-400 uppercase tracking-tighter"
+              > Limpiar </button>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
             <input
               type="number"
               placeholder="Mín"
-              className="h-10 w-full min-w-0 flex-1 rounded-xl border border-white/5 bg-slate-900/50 px-3 text-xs text-slate-100 outline-none transition-colors focus:border-indigo-400 focus:bg-slate-800"
+              className="h-10 w-full min-w-0 flex-1 rounded-xl border border-white/5 bg-slate-950/40 px-3 text-xs text-slate-100 outline-none transition-colors focus:border-indigo-400"
               value={state.pricePerM2Min ?? ""}
               onChange={(e) => {
                 const v = parseFloat(e.target.value);
@@ -348,7 +356,7 @@ export default function Home() {
             <input
               type="number"
               placeholder="Máx"
-              className="h-10 w-full min-w-0 flex-1 rounded-xl border border-white/5 bg-slate-900/50 px-3 text-xs text-slate-100 outline-none transition-colors focus:border-indigo-400 focus:bg-slate-800"
+              className="h-10 w-full min-w-0 flex-1 rounded-xl border border-white/5 bg-slate-950/40 px-3 text-xs text-slate-100 outline-none transition-colors focus:border-indigo-400"
               value={state.pricePerM2Max ?? ""}
               onChange={(e) => {
                 const v = parseFloat(e.target.value);
@@ -361,15 +369,23 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="w-20 shrink-0 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-            Sup. (M²)
-          </span>
-          <div className="flex flex-1 items-center gap-2">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              Sup. (M²)
+            </span>
+            {(state.areaTerrenoMin != null || state.areaTerrenoMax != null) && (
+              <button 
+                onClick={() => setState(prev => ({ ...prev, areaTerrenoMin: null, areaTerrenoMax: null }))}
+                className="text-[9px] font-bold text-indigo-400 uppercase tracking-tighter"
+              > Limpiar </button>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
             <input
               type="number"
               placeholder="Mín"
-              className="h-10 w-full min-w-0 flex-1 rounded-xl border border-white/5 bg-slate-900/50 px-3 text-xs text-slate-100 outline-none transition-colors focus:border-indigo-400 focus:bg-slate-800"
+              className="h-10 w-full min-w-0 flex-1 rounded-xl border border-white/5 bg-slate-950/40 px-3 text-xs text-slate-100 outline-none transition-colors focus:border-indigo-400"
               value={state.areaTerrenoMin ?? ""}
               onChange={(e) => {
                 const v = parseFloat(e.target.value);
@@ -383,7 +399,7 @@ export default function Home() {
             <input
               type="number"
               placeholder="Máx"
-              className="h-10 w-full min-w-0 flex-1 rounded-xl border border-white/5 bg-slate-900/50 px-3 text-xs text-slate-100 outline-none transition-colors focus:border-indigo-400 focus:bg-slate-800"
+              className="h-10 w-full min-w-0 flex-1 rounded-xl border border-white/5 bg-slate-950/40 px-3 text-xs text-slate-100 outline-none transition-colors focus:border-indigo-400"
               value={state.areaTerrenoMax ?? ""}
               onChange={(e) => {
                 const v = parseFloat(e.target.value);
@@ -396,15 +412,23 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="w-20 shrink-0 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-            Total USD
-          </span>
-          <div className="flex flex-1 items-center gap-2">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              Total USD
+            </span>
+            {(state.priceTotalMin != null || state.priceTotalMax != null) && (
+              <button 
+                onClick={() => setState(prev => ({ ...prev, priceTotalMin: null, priceTotalMax: null }))}
+                className="text-[9px] font-bold text-indigo-400 uppercase tracking-tighter"
+              > Limpiar </button>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
             <input
               type="number"
               placeholder="Mín"
-              className="h-10 w-full min-w-0 flex-1 rounded-xl border border-white/5 bg-slate-900/50 px-3 text-xs text-slate-100 outline-none transition-colors focus:border-indigo-400 focus:bg-slate-800"
+              className="h-10 w-full min-w-0 flex-1 rounded-xl border border-white/5 bg-slate-950/40 px-3 text-xs text-slate-100 outline-none transition-colors focus:border-indigo-400"
               value={state.priceTotalMin ?? ""}
               onChange={(e) => {
                 const v = parseFloat(e.target.value);
@@ -418,7 +442,7 @@ export default function Home() {
             <input
               type="number"
               placeholder="Máx"
-              className="h-10 w-full min-w-0 flex-1 rounded-xl border border-white/5 bg-slate-900/50 px-3 text-xs text-slate-100 outline-none transition-colors focus:border-indigo-400 focus:bg-slate-800"
+              className="h-10 w-full min-w-0 flex-1 rounded-xl border border-white/5 bg-slate-950/40 px-3 text-xs text-slate-100 outline-none transition-colors focus:border-indigo-400"
               value={state.priceTotalMax ?? ""}
               onChange={(e) => {
                 const v = parseFloat(e.target.value);
@@ -572,9 +596,12 @@ export default function Home() {
       <div 
         className={`pointer-events-auto absolute inset-x-0 bottom-0 z-40 transform transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] md:hidden ${mobilePanel !== "none" ? "translate-y-0" : "translate-y-[105%]"}`}
       >
-        <div className="relative flex max-h-[85vh] w-full flex-col bg-slate-900/90 backdrop-blur-2xl rounded-t-2xl border-t border-white/10 shadow-2xl pb-safe">
+        <div className="relative flex max-h-[85dvh] w-full flex-col bg-slate-900/90 backdrop-blur-2xl rounded-t-2xl border-t border-white/10 shadow-2xl pb-safe overscroll-behavior-contain translate-z-0">
+          {/* Handle indicator for mobile */}
+          <div className="absolute left-1/2 top-2 h-1 w-10 -translate-x-1/2 rounded-full bg-white/20" />
+
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-white/10 p-5 mt-2">
+          <div className="flex items-center justify-between border-b border-white/10 p-5 mt-4">
             <h2 className="text-lg font-bold text-white">
               {mobilePanel === "filters" ? "Filtros" : "Análisis de Datos"}
             </h2>
@@ -586,7 +613,7 @@ export default function Home() {
             </button>
           </div>
 
-          <div className="overflow-y-auto p-5 pb-10">
+          <div className="flex-1 overflow-y-auto p-5 pb-10 overscroll-contain">
             <div className="flex flex-col gap-6">
               {mobilePanel === "filters" && renderFiltersContent()}
               
