@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { ComponentType } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, ZoomControl } from "react-leaflet";
 import { divIcon } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { Inmueble } from "@/lib/inmuebles";
@@ -76,16 +76,16 @@ function createMarkerIcon(
   isActive: boolean,
 ) {
   const highlightClasses = isActive
-    ? "ring-2 ring-red-500 shadow-red-500/40 scale-[1.1]"
+    ? "ring-4 ring-indigo-500/50 shadow-[0_0_20px_rgba(99,102,241,0.4)] scale-110 z-50"
     : inHighlightRange
-      ? "ring-2 ring-emerald-400 shadow-emerald-500/40 scale-[1.05]"
-      : "ring-1 ring-zinc-900/50";
+      ? "ring-2 ring-emerald-400/60 shadow-[0_0_12px_rgba(52,211,153,0.3)] scale-105"
+      : "ring-1 ring-white/20";
 
   return divIcon({
     html: `
       <div class="group relative select-none">
-        <div class="inline-flex items-center justify-center rounded-full bg-zinc-950/50 ${highlightClasses} shadow-xl p-0 border border-zinc-800/20 backdrop-blur">
-          <span class="inline-block h-4 w-4 rounded-full" style="background:${baseColor}"></span>
+        <div class="inline-flex items-center justify-center rounded-full bg-slate-950/60 ${highlightClasses} shadow-2xl p-0.5 border border-white/10 backdrop-blur-sm">
+          <span class="inline-block h-3.5 w-3.5 rounded-full" style="background:${baseColor}"></span>
         </div>
       </div>
     `,
@@ -183,13 +183,15 @@ export function MapView({
         : null;
 
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-950/90 shadow-xl dark:border-zinc-800">
+    <div className="relative h-full w-full overflow-hidden bg-slate-950">
       <AnyMapContainer
         center={MAR_DEL_PLATA_CENTER}
         zoom={12}
         className="h-full w-full leaflet-tile-color-filter"
         scrollWheelZoom
+        zoomControl={false}
       >
+        <ZoomControl position="bottomright" />
         <AnyTileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

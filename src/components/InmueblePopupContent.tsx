@@ -159,26 +159,27 @@ export function InmueblePopupContent({
   }, [isTransitioning, transitionToIndex]);
 
   return (
-    <div className="w-100 max-w-xs rounded-lg bg-zinc-950/95 p-3 shadow-xl ring-1 ring-zinc-800">
+    <div className="w-72 max-w-[calc(100vw-40px)] rounded-2xl bg-slate-950/90 p-4 shadow-2xl backdrop-blur-2xl border border-white/10">
       {carouselImage && (
-        <div className="mb-3 overflow-hidden rounded-md border border-zinc-800/60">
+        <div className="mb-4 overflow-hidden rounded-xl border border-white/5 bg-slate-900/40 shadow-inner">
           <div className="relative">
             <div
-              className="absolute left-2 top-2 z-10 flex items-center justify-center auto-cols-auto rounded border border-white/10 bg-black/60 p-1 backdrop-blur-md"
+              className="absolute left-3 top-3 z-10 flex items-center justify-center rounded-xl border border-white/10 bg-slate-950/60 p-1.5 backdrop-blur-md shadow-lg"
               title={
                 inmueble.source === "robles" ? "Origen: Los Robles" : "Origen: Mardelinmueble"
               }
             >
               {inmueble.source === "robles" ? (
-                <Trees className="h-3.5 w-3.5 text-zinc-300" strokeWidth={2.5} />
+                <Trees className="h-4 w-4 text-indigo-400" strokeWidth={2.5} />
               ) : (
-                <Building2 className="h-3.5 w-3.5 text-zinc-300" strokeWidth={2.5} />
+                <Building2 className="h-4 w-4 text-indigo-400" strokeWidth={2.5} />
               )}
             </div>
-            <div className="relative h-32 w-full overflow-hidden">
+            
+            <div className="relative h-40 w-full overflow-hidden">
               {transitionToImage && transitionDirection ? (
                 <div
-                  className={`absolute inset-0 flex w-[200%] ${animateTrack ? "transition-transform duration-300 ease-in-out" : ""}`}
+                  className={`absolute inset-0 flex w-[200%] ${animateTrack ? "transition-transform duration-450 ease-[cubic-bezier(0.4,0,0.2,1)]" : ""}`}
                   style={{
                     transform:
                       transitionDirection === "next"
@@ -196,18 +197,16 @@ export function InmueblePopupContent({
                       <img
                         src={carouselImage}
                         alt={inmueble.title}
-                        className="h-32 w-1/2 object-cover bg-zinc-900"
+                        className="h-40 w-1/2 object-cover"
                         loading="lazy"
                         referrerPolicy="no-referrer"
-                        onLoad={() => markLoaded(carouselImage)}
                       />
                       <img
                         src={transitionToImage}
                         alt={inmueble.title}
-                        className="h-32 w-1/2 object-cover bg-zinc-900"
+                        className="h-40 w-1/2 object-cover"
                         loading="lazy"
                         referrerPolicy="no-referrer"
-                        onLoad={() => markLoaded(transitionToImage)}
                       />
                     </>
                   ) : (
@@ -215,18 +214,16 @@ export function InmueblePopupContent({
                       <img
                         src={transitionToImage}
                         alt={inmueble.title}
-                        className="h-32 w-1/2 object-cover bg-zinc-900"
+                        className="h-40 w-1/2 object-cover"
                         loading="lazy"
                         referrerPolicy="no-referrer"
-                        onLoad={() => markLoaded(transitionToImage)}
                       />
                       <img
                         src={carouselImage}
                         alt={inmueble.title}
-                        className="h-32 w-1/2 object-cover bg-zinc-900"
+                        className="h-40 w-1/2 object-cover"
                         loading="lazy"
                         referrerPolicy="no-referrer"
-                        onLoad={() => markLoaded(carouselImage)}
                       />
                     </>
                   )}
@@ -235,42 +232,43 @@ export function InmueblePopupContent({
                 <img
                   src={carouselImage}
                   alt={inmueble.title}
-                  className="h-32 w-full object-cover bg-zinc-900"
+                  className="h-40 w-full object-cover"
                   loading="lazy"
                   referrerPolicy="no-referrer"
-                  onLoad={() => markLoaded(carouselImage)}
                 />
               )}
             </div>
 
             {carouselImages.length > 1 && (
               <>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handlePrevImage();
-                  }}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full border border-zinc-700/60 bg-zinc-950/70 px-2 py-1 text-xs font-semibold text-zinc-100 backdrop-blur hover:bg-zinc-900/80"
-                  aria-label="Foto anterior"
-                >
-                  ‹
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleNextImage();
-                  }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full border border-zinc-700/60 bg-zinc-950/70 px-2 py-1 text-xs font-semibold text-zinc-100 backdrop-blur hover:bg-zinc-900/80"
-                  aria-label="Foto siguiente"
-                >
-                  ›
-                </button>
+                <div className="absolute inset-y-0 left-0 flex items-center p-2">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handlePrevImage();
+                    }}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-950/40 text-white backdrop-blur hover:bg-slate-950/60 active:scale-95 transition-all"
+                  >
+                    ‹
+                  </button>
+                </div>
+                <div className="absolute inset-y-0 right-0 flex items-center p-2">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleNextImage();
+                    }}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-950/40 text-white backdrop-blur hover:bg-slate-950/60 active:scale-95 transition-all"
+                  >
+                    ›
+                  </button>
+                </div>
 
-                <div className="absolute bottom-2 right-2 rounded-full border border-zinc-700/60 bg-zinc-950/70 px-2 py-0.5 text-[10px] font-medium text-zinc-100 backdrop-blur">
+                <div className="absolute bottom-3 right-3 rounded-lg bg-slate-950/60 px-2 py-1 text-[10px] font-bold text-white backdrop-blur border border-white/10">
                   {activeImageIndex + 1}/{carouselImages.length}
                 </div>
               </>
@@ -278,133 +276,75 @@ export function InmueblePopupContent({
           </div>
         </div>
       )}
-      <div className="space-y-1">
-        <div className="text-[11px] font-medium uppercase tracking-wide text-zinc-400">
-          {inmueble.barrio ?? "Sin barrio"}
-        </div>
-        <div className="text-sm font-semibold leading-snug text-zinc-50">
-          {inmueble.calle} {inmueble.numero}
-        </div>
-        <a
-          href={inmueble.publicUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex text-[11px] font-medium text-sky-300 hover:text-sky-200"
-        >
-          Ver publicación
-        </a>
-      </div>
 
-      <div className="mt-3 space-y-3 text-[11px] text-zinc-300">
-        <div className="flex items-start justify-between gap-3">
+      <div className="space-y-3">
+        <div>
+          <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-400">
+            {inmueble.barrio ?? "Ubicación desconocida"}
+          </div>
+          <h3 className="text-base font-bold text-white leading-tight mt-0.5">
+            {inmueble.calle} {inmueble.numero}
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-0.5">
-            <div className="text-[11px] font-medium text-zinc-400">Precio</div>
-            <div className="text-base font-semibold text-zinc-50">
-              {inmueble.priceUsd.toLocaleString("es-AR")}{" "}
-              <span className="text-[11px] font-medium text-zinc-400">USD</span>
+            <span className="text-[10px] font-bold text-slate-500 uppercase">Precio</span>
+            <div className="text-xl font-bold text-white">
+              {inmueble.priceUsd.toLocaleString("es-AR")}
+              <span className="text-xs font-medium text-slate-500 ml-1">USD</span>
             </div>
           </div>
           <div className="space-y-0.5 text-right">
-            <div className="text-[11px] font-medium text-zinc-400">
-              Precio / m² (ponderado)
-            </div>
-            <div className="text-sm font-semibold text-emerald-400">
+            <span className="text-[10px] font-bold text-slate-500 uppercase">Valor M²</span>
+            <div className="text-sm font-bold text-indigo-400">
               {inmueble.pricePerM2 ? (
                 <>
                   {inmueble.pricePerM2.toLocaleString("es-AR", {
                     maximumFractionDigits: 0,
-                  })}{" "}
-                  <span className="text-[10px] font-medium text-emerald-300/80">
-                    usd/m2
-                  </span>
+                  })}
+                  <span className="text-[10px] ml-0.5">usd/m²</span>
                 </>
               ) : (
-                "Sin datos"
+                "N/A"
               )}
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 border-t border-zinc-800 pt-2">
-          <div className="space-y-0.5">
-            <div className="text-[10px] font-medium text-zinc-500">
-              Sup. cubierta
-            </div>
-            <div className="font-semibold text-zinc-50">
-              {inmueble.areaCubiertaM2 ? (
-                <>
-                  {inmueble.areaCubiertaM2.toFixed(0)}{" "}
-                  <span className="text-[10px] font-medium text-zinc-400">
-                    m²
-                  </span>
-                </>
-              ) : (
-                "—"
-              )}
+        <div className="grid grid-cols-3 gap-2 border-t border-white/10 pt-3">
+          <div className="text-center">
+            <div className="text-[9px] font-bold text-slate-500 uppercase">Cubierta</div>
+            <div className="text-xs font-bold text-slate-200">
+              {inmueble.areaCubiertaM2 ? `${inmueble.areaCubiertaM2.toFixed(0)}m²` : "—"}
             </div>
           </div>
-          <div className="space-y-0.5">
-            <div className="text-[10px] font-medium text-zinc-500">
-              Sup. terreno
-            </div>
-            <div className="font-semibold text-zinc-50">
-              {inmueble.areaTerrenoM2 ? (
-                <>
-                  {inmueble.areaTerrenoM2.toFixed(0)}{" "}
-                  <span className="text-[10px] font-medium text-zinc-400">
-                    m²
-                  </span>
-                </>
-              ) : (
-                "—"
-              )}
+          <div className="text-center">
+            <div className="text-[9px] font-bold text-slate-500 uppercase">Terreno</div>
+            <div className="text-xs font-bold text-slate-200">
+              {inmueble.areaTerrenoM2 ? `${inmueble.areaTerrenoM2.toFixed(0)}m²` : "—"}
             </div>
           </div>
-          <div className="space-y-0.5 text-right">
-            <div className="text-[10px] font-medium text-zinc-500">
-              m² ponderados
-            </div>
-            <div className="font-semibold text-zinc-50">
-              {inmueble.areaM2 ? (
-                <>
-                  {inmueble.areaM2.toFixed(0)}{" "}
-                  <span className="text-[10px] font-medium text-zinc-400">
-                    m²
-                  </span>
-                </>
-              ) : (
-                "—"
-              )}
+          <div className="text-center">
+            <div className="text-[9px] font-bold text-slate-500 uppercase">Amb.</div>
+            <div className="text-xs font-bold text-slate-200">
+              {inmueble.ambientes ?? "—"}
             </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-1">
-          <div className="flex items-center gap-2">
-            <div className="inline-flex items-center gap-1 rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] text-zinc-100">
-              <span>Ambientes</span>
-              <span className="font-semibold">
-                {inmueble.ambientes != null ? inmueble.ambientes : "—"}
-              </span>
-            </div>
-
-            {(() => {
-              const pubDate = inmueble.lastUpdate ?? inmueble.createdAt;
-              if (!pubDate) return null;
-              const diffMs = new Date().getTime() - new Date(pubDate).getTime();
-              const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-              return (
-                <div className="inline-flex items-center gap-1 rounded-full bg-zinc-800 px-2 py-0.5 text-[10px] text-zinc-100">
-                  <span>Hace</span>
-                  <span className="font-semibold">
-                    {diffDays === 0 ? "hoy" : `${diffDays} d`}
-                  </span>
-                </div>
-              );
-            })()}
-          </div>
-
-          <div className="text-[10px] font-medium text-zinc-500">
+        <div className="flex items-center justify-between pt-2">
+          <a
+            href={inmueble.publicUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1"
+          >
+            Ver catálogo 
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </a>
+          
+          <div className="text-[9px] font-medium text-slate-500">
             ID {inmueble.id}
           </div>
         </div>

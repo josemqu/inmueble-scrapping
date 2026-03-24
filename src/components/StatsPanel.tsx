@@ -52,89 +52,55 @@ export function StatsPanel({
       : null;
 
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white/80 p-4 text-xs shadow-xl backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/80 md:p-5">
-      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-zinc-200 pb-3 dark:border-zinc-800">
+    <section className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-white/5 pb-4">
         <div>
-          <div className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
-            Total de inmuebles analizados
+          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+            Resumen estadístico
           </div>
-          <div className="text-2xl font-semibold leading-tight text-zinc-900 dark:text-zinc-50">
-            {total.toLocaleString()}
+          <div className="text-3xl font-bold leading-tight text-white mt-1">
+            {total.toLocaleString()} <span className="text-sm font-medium text-slate-500">propiedades</span>
           </div>
-        </div>
-        <div className="flex flex-wrap gap-2 text-[11px] text-zinc-500">
-          <span className="inline-flex items-center gap-1 rounded-full border border-zinc-300 px-2 py-0.5 dark:border-zinc-700">
-            {barriosConDatos.toLocaleString()} barrios con datos de m²
-          </span>
-          {validM2.length > 0 && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-2 py-0.5 text-emerald-300">
-              {validM2.length.toLocaleString()} inmuebles con precio por m²
-            </span>
-          )}
         </div>
       </div>
 
-      <div className="mt-4 grid gap-3 md:grid-cols-2">
-        <div className="space-y-1 rounded-xl bg-zinc-50/80 p-3 dark:bg-zinc-900/80">
-          <div className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
-            Promedio m² (global)
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-1 rounded-xl bg-white/[0.03] p-4 border border-white/5">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+            Promedio m²
           </div>
-          <div className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+          <div className="text-xl font-bold text-white">
             {avgPricePerM2 ? (
               <>
                 {avgPricePerM2.toLocaleString("es-AR", {
                   maximumFractionDigits: 0,
                 })}{" "}
-                <span className="text-[10px] font-medium text-zinc-500">
-                  usd/m2
-                </span>
+                <span className="text-xs font-medium text-slate-500">usd/m²</span>
               </>
-            ) : (
-              "Sin datos"
-            )}
+            ) : "—"}
           </div>
           {medianPricePerM2 && (
-            <div className="text-[11px] text-zinc-500">
-              Mediana:{" "}
-              <span className="font-medium text-zinc-800 dark:text-zinc-100">
-                {medianPricePerM2.toLocaleString("es-AR", {
-                  maximumFractionDigits: 0,
-                })}{" "}
-                <span className="text-[10px] font-medium text-zinc-500">
-                  usd/m2
-                </span>
-              </span>
+            <div className="text-[10px] font-medium text-slate-500">
+              MEDIANA: <span className="text-slate-300 font-bold">{medianPricePerM2.toLocaleString("es-AR", { maximumFractionDigits: 0 })}</span>
             </div>
           )}
         </div>
 
-        <div className="space-y-1 rounded-xl bg-zinc-50/80 p-3 dark:bg-zinc-900/80">
-          <div className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
-            Precio total promedio
+        <div className="space-y-1 rounded-xl bg-white/[0.03] p-4 border border-white/5">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+            Val. Promedio
           </div>
-          <div className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+          <div className="text-xl font-bold text-white">
             {avgPrice ? (
               <>
                 {avgPrice.toLocaleString("es-AR", {
                   maximumFractionDigits: 0,
                 })}{" "}
-                <span className="text-[11px] font-medium text-zinc-500">
-                  USD
-                </span>
+                <span className="text-xs font-medium text-slate-500">USD</span>
               </>
-            ) : (
-              "Sin datos"
-            )}
+            ) : "—"}
           </div>
         </div>
-
-        {false && (
-          <div className="space-y-1 rounded-xl bg-zinc-50/80 p-3 dark:bg-zinc-900/80">
-            <div className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
-              Rangos por barrio
-            </div>
-          </div>
-        )}
       </div>
     </section>
   );

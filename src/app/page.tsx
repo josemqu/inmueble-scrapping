@@ -53,6 +53,7 @@ const initialState: State = {
 export default function Home() {
   const [state, setState] = useState<State>(initialState);
   const [filtersOpen, setFiltersOpen] = useState(true);
+  const [mobilePanel, setMobilePanel] = useState<"none" | "filters" | "stats">("none");
   const [histogramSelectedRange, setHistogramSelectedRange] =
     useState<HistogramRange | null>(null);
 
@@ -254,309 +255,359 @@ export default function Home() {
           return true;
         });
 
-  return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 text-zinc-50">
-      <main className="flex min-h-screen flex-1 flex-col gap-3 px-4 py-3 md:px-6 md:py-4">
-        <header className="flex flex-col gap-1">
-          <div className="space-y-1">
-            <h1 className="text-lg font-semibold tracking-tight md:text-xl">
-              Análisis de valor m² ·{" "}
-              {state.idCiudad === "1"
-                ? "Mar del Plata"
-                : state.idCiudad === "4"
-                  ? "Pinamar"
-                  : state.idCiudad === "5"
-                    ? "Villa Gesell"
-                    : "Seleccionada"}
-            </h1>
-            <p className="max-w-xl text-[11px] text-zinc-500 md:text-xs">
-              Datos en tiempo real desde la API de Mar del Inmueble. Explorá
-              cómo varía el precio por metro cuadrado según el barrio.
-            </p>
-          </div>
-        </header>
 
-        <section className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-[minmax(280px,360px)_minmax(0,1fr)]">
-          <div className="flex flex-col gap-3">
+
+  const cityName =
+    state.idCiudad === "1"
+      ? "Mar del Plata"
+      : state.idCiudad === "4"
+        ? "Pinamar"
+        : state.idCiudad === "5"
+          ? "Villa Gesell"
+          : "Seleccionada";
+
+  const hasFiltersActive =
+    state.pricePerM2Min != null ||
+    state.pricePerM2Max != null ||
+    state.areaTerrenoMin != null ||
+    state.areaTerrenoMax != null ||
+    state.priceTotalMin != null ||
+    state.priceTotalMax != null ||
+    state.maxAgeDays != null;
+
+  const renderFiltersContent = () => (
+    <div className="flex flex-col gap-4">
+      {/* City & Type Grid */}
+      <div className="grid grid-cols-2 gap-3">
+        <select
+          className="h-11 w-full rounded-xl border border-white/10 bg-slate-800/40 px-4 text-xs font-medium text-slate-200 outline-none backdrop-blur-md transition-colors focus:border-indigo-400 focus:bg-slate-800/60"
+          value={state.idCiudad}
+          onChange={(e) =>
+            setState((prev) => ({ ...prev, idCiudad: e.target.value }))
+          }
+        >
+          <option value="1">Mar del Plata</option>
+          <option value="4">Pinamar</option>
+          <option value="5">Villa Gesell</option>
+        </select>
+
+        <select
+          className="h-11 w-full rounded-xl border border-white/10 bg-slate-800/40 px-4 text-xs font-medium text-slate-200 outline-none backdrop-blur-md transition-colors focus:border-indigo-400 focus:bg-slate-800/60"
+          value={state.idTipoOperacion}
+          onChange={(e) =>
+            setState((prev) => ({
+              ...prev,
+              idTipoOperacion: e.target.value,
+            }))
+          }
+        >
+          <option value="1">Venta</option>
+          <option value="2">Alquiler</option>
+          <option value="3">Temporal</option>
+        </select>
+      </div>
+
+      <select
+        className="h-11 w-full rounded-xl border border-white/10 bg-slate-800/40 px-4 text-xs font-medium text-slate-200 outline-none backdrop-blur-md transition-colors focus:border-indigo-400 focus:bg-slate-800/60"
+        value={state.idTipoInmueble}
+        onChange={(e) =>
+          setState((prev) => ({
+            ...prev,
+            idTipoInmueble: e.target.value,
+          }))
+        }
+      >
+        <option value="1">Casas</option>
+        <option value="2">Departamentos</option>
+        <option value="3">Locales</option>
+        <option value="4">Terrenos</option>
+        <option value="5">Quintas</option>
+        <option value="6">Cocheras</option>
+      </select>
+
+      <div className="mt-2 flex flex-col gap-3">
+        <div className="flex items-center gap-3">
+          <span className="w-20 shrink-0 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            Val / M²
+          </span>
+          <div className="flex flex-1 items-center gap-2">
+            <input
+              type="number"
+              placeholder="Mín"
+              className="h-10 w-full min-w-0 flex-1 rounded-xl border border-white/5 bg-slate-900/50 px-3 text-xs text-slate-100 outline-none transition-colors focus:border-indigo-400 focus:bg-slate-800"
+              value={state.pricePerM2Min ?? ""}
+              onChange={(e) => {
+                const v = parseFloat(e.target.value);
+                setState((prev) => ({
+                  ...prev,
+                  pricePerM2Min: Number.isNaN(v) ? null : v,
+                }));
+              }}
+            />
+            <span className="text-slate-500">-</span>
+            <input
+              type="number"
+              placeholder="Máx"
+              className="h-10 w-full min-w-0 flex-1 rounded-xl border border-white/5 bg-slate-900/50 px-3 text-xs text-slate-100 outline-none transition-colors focus:border-indigo-400 focus:bg-slate-800"
+              value={state.pricePerM2Max ?? ""}
+              onChange={(e) => {
+                const v = parseFloat(e.target.value);
+                setState((prev) => ({
+                  ...prev,
+                  pricePerM2Max: Number.isNaN(v) ? null : v,
+                }));
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="w-20 shrink-0 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            Sup. (M²)
+          </span>
+          <div className="flex flex-1 items-center gap-2">
+            <input
+              type="number"
+              placeholder="Mín"
+              className="h-10 w-full min-w-0 flex-1 rounded-xl border border-white/5 bg-slate-900/50 px-3 text-xs text-slate-100 outline-none transition-colors focus:border-indigo-400 focus:bg-slate-800"
+              value={state.areaTerrenoMin ?? ""}
+              onChange={(e) => {
+                const v = parseFloat(e.target.value);
+                setState((prev) => ({
+                  ...prev,
+                  areaTerrenoMin: Number.isNaN(v) ? null : v,
+                }));
+              }}
+            />
+            <span className="text-slate-500">-</span>
+            <input
+              type="number"
+              placeholder="Máx"
+              className="h-10 w-full min-w-0 flex-1 rounded-xl border border-white/5 bg-slate-900/50 px-3 text-xs text-slate-100 outline-none transition-colors focus:border-indigo-400 focus:bg-slate-800"
+              value={state.areaTerrenoMax ?? ""}
+              onChange={(e) => {
+                const v = parseFloat(e.target.value);
+                setState((prev) => ({
+                  ...prev,
+                  areaTerrenoMax: Number.isNaN(v) ? null : v,
+                }));
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="w-20 shrink-0 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            Total USD
+          </span>
+          <div className="flex flex-1 items-center gap-2">
+            <input
+              type="number"
+              placeholder="Mín"
+              className="h-10 w-full min-w-0 flex-1 rounded-xl border border-white/5 bg-slate-900/50 px-3 text-xs text-slate-100 outline-none transition-colors focus:border-indigo-400 focus:bg-slate-800"
+              value={state.priceTotalMin ?? ""}
+              onChange={(e) => {
+                const v = parseFloat(e.target.value);
+                setState((prev) => ({
+                  ...prev,
+                  priceTotalMin: Number.isNaN(v) ? null : v,
+                }));
+              }}
+            />
+            <span className="text-slate-500">-</span>
+            <input
+              type="number"
+              placeholder="Máx"
+              className="h-10 w-full min-w-0 flex-1 rounded-xl border border-white/5 bg-slate-900/50 px-3 text-xs text-slate-100 outline-none transition-colors focus:border-indigo-400 focus:bg-slate-800"
+              value={state.priceTotalMax ?? ""}
+              onChange={(e) => {
+                const v = parseFloat(e.target.value);
+                setState((prev) => ({
+                  ...prev,
+                  priceTotalMax: Number.isNaN(v) ? null : v,
+                }));
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="relative flex h-[100dvh] w-full overflow-hidden bg-slate-950 font-sans text-slate-50 selection:bg-indigo-500/30 selection:text-white">
+      {/* 1. MAP BACKGROUND */}
+      <main className="absolute inset-0 z-0 h-full w-full">
+        {/* Soft dark overlay for the map instead of brutalist grayscale filter */}
+        <div className="absolute inset-0 bg-slate-950/20 pointer-events-none z-[1]" />
+        
+        <MapView
+          inmuebles={filteredInmuebles}
+          pricePerM2Min={state.pricePerM2Min}
+          pricePerM2Max={state.pricePerM2Max}
+          highlightPricePerM2Range={histogramSelectedRange}
+        />
+      </main>
+
+      {/* 2. DESKTOP GLASS SIDEBAR */}
+      <aside
+        className={`pointer-events-auto relative z-10 m-4 hidden h-[calc(100dvh-32px)] flex-col overflow-y-auto rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-2xl shadow-2xl md:flex transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+          filtersOpen ? "w-[400px]" : "w-0 overflow-hidden border-none mx-0 opacity-0"
+        }`}
+      >
+        <div className="flex w-[400px] flex-col overflow-x-hidden">
+          <header className="flex flex-col p-8 pb-4">
+            <h1 className="text-3xl font-bold tracking-tight text-white mb-1">
+              Atlas <span className="text-indigo-400">Inmuebles</span>
+            </h1>
+            <p className="text-xs font-medium text-slate-400">
+              Analítica de mercado · {cityName}
+            </p>
+          </header>
+
+          <div className="flex flex-col gap-6 px-8 pb-8">
+            <div className="flex flex-col">
+              <div className="mb-2 flex items-center justify-between">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                  Filtros
+                </h2>
+                {hasFiltersActive && (
+                  <button
+                    onClick={() =>
+                      setState((prev) => ({
+                        ...prev,
+                        pricePerM2Min: null,
+                        pricePerM2Max: null,
+                        areaTerrenoMin: null,
+                        areaTerrenoMax: null,
+                        priceTotalMin: null,
+                        priceTotalMax: null,
+                        maxAgeDays: null,
+                      }))
+                    }
+                    className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 hover:text-indigo-300 transition-colors"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
+              <div className="pt-2">
+                {renderFiltersContent()}
+              </div>
+              
+              <div className="mt-4 flex flex-col gap-1 text-center">
+                {state.loading && <span className="text-indigo-400 text-xs font-medium animate-pulse">Cargando datos...</span>}
+                {!state.loading && state.error && (
+                  <span className="text-rose-400 text-xs font-medium">Error: {state.error}</span>
+                )}
+                {!state.loading && !state.error && (
+                  <span className="text-slate-400 text-xs">
+                    <strong className="text-white font-semibold text-sm mr-1">{filteredInmuebles.length.toLocaleString()}</strong>
+                    resultados
+                  </span>
+                )}
+              </div>
+            </div>
+
             <StatsPanel inmuebles={filteredInmuebles} barrios={state.barrios} />
+            
             <PricePerM2Histogram
               inmuebles={filteredInmuebles}
               selectedRange={histogramSelectedRange}
               onBucketClick={(range) => setHistogramSelectedRange(range)}
             />
           </div>
+        </div>
+      </aside>
 
-          <div className="relative z-0 h-full min-h-[320px]">
-            <div className="pointer-events-none absolute inset-0 z-[9999] flex items-start justify-end p-3 md:p-4">
-              <div className="pointer-events-auto flex flex-col items-end gap-3">
-                <button
-                  type="button"
-                  className="rounded-full border border-zinc-700 bg-zinc-900/80 px-3 py-1 text-[10px] font-medium text-zinc-200 shadow-md hover:border-emerald-400 hover:text-emerald-300"
-                  onClick={() => setFiltersOpen((prev) => !prev)}
-                >
-                  {filtersOpen ? "Ocultar filtros" : "Mostrar filtros"}
-                </button>
+      {/* FLOAT BUTTON DESKTOP */}
+      <div className={`absolute top-6 z-20 hidden md:block transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${filtersOpen ? 'left-[436px]' : 'left-6'}`}>
+        <button
+          onClick={() => setFiltersOpen(!filtersOpen)}
+          className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-900/80 backdrop-blur-md border border-white/10 text-white shadow-xl hover:bg-indigo-500 hover:border-indigo-400 transition-all font-medium"
+        >
+          {filtersOpen ? (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          )}
+        </button>
+      </div>
 
-                {filtersOpen && (
-                  <div className="w-full max-w-xl rounded-2xl border border-zinc-800 bg-zinc-950/95 p-4 text-[11px] text-zinc-300 shadow-xl backdrop-blur">
-                    <div className="flex flex-col gap-3">
-                      <div className="flex w-full flex-wrap items-center gap-2 md:gap-3">
-                        <select
-                          className="flex-1 min-w-[120px] rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
-                          value={state.idCiudad}
-                          onChange={(e) =>
-                            setState((prev) => ({
-                              ...prev,
-                              idCiudad: e.target.value,
-                            }))
-                          }
-                        >
-                          <option value="1">Mar del Plata</option>
-                          <option value="4">Pinamar</option>
-                          <option value="5">Villa Gesell</option>
-                        </select>
+      {/* 3. MOBILE: GLASS HUD */}
+      <div className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-between md:hidden">
+        {/* Top Header Block */}
+        <div className="pointer-events-auto w-full bg-slate-900/60 p-5 pt-8 backdrop-blur-2xl border-b border-white/10 rounded-b-2xl shadow-lg scrollbar-hide">
+          <h1 className="text-2xl font-bold tracking-tight text-white">
+            Atlas <span className="text-indigo-400">Inmuebles</span>
+          </h1>
+          <p className="mt-1 text-xs font-medium text-slate-400">
+            {cityName} · <span className="text-white">{filteredInmuebles.length}</span> Resultados
+          </p>
+        </div>
 
-                        <select
-                          className="flex-1 min-w-[120px] rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
-                          value={state.idTipoOperacion}
-                          onChange={(e) =>
-                            setState((prev) => ({
-                              ...prev,
-                              idTipoOperacion: e.target.value,
-                            }))
-                          }
-                        >
-                          <option value="1">Venta</option>
-                          <option value="2">Alquiler</option>
-                          <option value="3">Alquiler Temporario</option>
-                        </select>
+        {/* Mobile Floating Action Buttons */}
+        <div className="pointer-events-auto absolute bottom-8 right-5 flex flex-col gap-3">
+          <button
+            onClick={() => setMobilePanel(mobilePanel === "stats" ? "none" : "stats")}
+            className="flex h-14 w-14 items-center justify-center rounded-xl bg-slate-800/80 backdrop-blur-md border border-white/10 text-white shadow-xl transition-transform active:scale-95"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          </button>
+          
+          <button
+            onClick={() => setMobilePanel(mobilePanel === "filters" ? "none" : "filters")}
+            className="flex h-14 w-14 items-center justify-center rounded-xl bg-indigo-500 text-white shadow-xl shadow-indigo-500/30 transition-transform active:scale-95 border border-indigo-400"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+          </button>
+        </div>
+      </div>
 
-                        <select
-                          className="flex-1 min-w-[120px] rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
-                          value={state.idTipoInmueble}
-                          onChange={(e) =>
-                            setState((prev) => ({
-                              ...prev,
-                              idTipoInmueble: e.target.value,
-                            }))
-                          }
-                        >
-                          <option value="1">Casas</option>
-                          <option value="2">Departamentos</option>
-                          <option value="3">Locales</option>
-                          <option value="4">Terrenos</option>
-                          <option value="5">Quintas</option>
-                          <option value="6">Cocheras</option>
-                        </select>
-                      </div>
-
-                      <div className="flex w-full flex-nowrap items-center gap-2 md:gap-3">
-                        <span className="w-40 shrink-0 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
-                          Filtro precio / m²
-                        </span>
-                        <input
-                          type="number"
-                          inputMode="decimal"
-                          placeholder="Mín"
-                          className="w-24 flex-none rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
-                          value={state.pricePerM2Min ?? ""}
-                          onChange={(e) => {
-                            const v = parseFloat(e.target.value);
-                            setState((prev) => ({
-                              ...prev,
-                              pricePerM2Min: Number.isNaN(v) ? null : v,
-                            }));
-                          }}
-                        />
-                        <span className="shrink-0">–</span>
-                        <input
-                          type="number"
-                          inputMode="decimal"
-                          placeholder="Máx"
-                          className="w-24 flex-none rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
-                          value={state.pricePerM2Max ?? ""}
-                          onChange={(e) => {
-                            const v = parseFloat(e.target.value);
-                            setState((prev) => ({
-                              ...prev,
-                              pricePerM2Max: Number.isNaN(v) ? null : v,
-                            }));
-                          }}
-                        />
-                        <button
-                          type="button"
-                          aria-label="Limpiar filtro precio por metro cuadrado"
-                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-zinc-700 text-[12px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
-                          onClick={() =>
-                            setState((prev) => ({
-                              ...prev,
-                              pricePerM2Min: null,
-                              pricePerM2Max: null,
-                            }))
-                          }
-                        >
-                          ×
-                        </button>
-                      </div>
-
-                      <div className="flex w-full flex-nowrap items-center gap-2 md:gap-3">
-                        <span className="w-40 shrink-0 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
-                          Antigüedad máx. (días)
-                        </span>
-                        <input
-                          type="number"
-                          inputMode="decimal"
-                          placeholder="Ej: 90"
-                          className="w-24 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
-                          value={state.maxAgeDays ?? ""}
-                          onChange={(e) => {
-                            const v = parseFloat(e.target.value);
-                            setState((prev) => ({
-                              ...prev,
-                              maxAgeDays: Number.isNaN(v) ? null : v,
-                            }));
-                          }}
-                        />
-                        <button
-                          type="button"
-                          aria-label="Limpiar filtro de antigüedad máxima"
-                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-zinc-700 text-[12px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
-                          onClick={() =>
-                            setState((prev) => ({
-                              ...prev,
-                              maxAgeDays: null,
-                            }))
-                          }
-                        >
-                          ×
-                        </button>
-                      </div>
-
-                      <div className="flex w-full flex-nowrap items-center gap-2 md:gap-3">
-                        <span className="w-40 shrink-0 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
-                          Sup. terreno (m²)
-                        </span>
-                        <input
-                          type="number"
-                          inputMode="decimal"
-                          placeholder="Mín"
-                          className="w-24 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
-                          value={state.areaTerrenoMin ?? ""}
-                          onChange={(e) => {
-                            const v = parseFloat(e.target.value);
-                            setState((prev) => ({
-                              ...prev,
-                              areaTerrenoMin: Number.isNaN(v) ? null : v,
-                            }));
-                          }}
-                        />
-                        <span>–</span>
-                        <input
-                          type="number"
-                          inputMode="decimal"
-                          placeholder="Máx"
-                          className="w-24 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
-                          value={state.areaTerrenoMax ?? ""}
-                          onChange={(e) => {
-                            const v = parseFloat(e.target.value);
-                            setState((prev) => ({
-                              ...prev,
-                              areaTerrenoMax: Number.isNaN(v) ? null : v,
-                            }));
-                          }}
-                        />
-                        <button
-                          type="button"
-                          aria-label="Limpiar filtro de superficie de terreno"
-                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-zinc-700 text-[12px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
-                          onClick={() =>
-                            setState((prev) => ({
-                              ...prev,
-                              areaTerrenoMin: null,
-                              areaTerrenoMax: null,
-                            }))
-                          }
-                        >
-                          ×
-                        </button>
-                      </div>
-
-                      <div className="flex w-full flex-nowrap items-center gap-2 md:gap-3">
-                        <span className="w-40 shrink-0 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
-                          Precio total
-                        </span>
-                        <input
-                          type="number"
-                          inputMode="decimal"
-                          placeholder="Mín"
-                          className="w-24 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
-                          value={state.priceTotalMin ?? ""}
-                          onChange={(e) => {
-                            const v = parseFloat(e.target.value);
-                            setState((prev) => ({
-                              ...prev,
-                              priceTotalMin: Number.isNaN(v) ? null : v,
-                            }));
-                          }}
-                        />
-                        <span>–</span>
-                        <input
-                          type="number"
-                          inputMode="decimal"
-                          placeholder="Máx"
-                          className="w-24 rounded-full border border-zinc-700 bg-zinc-900 px-2 py-1 text-[11px] text-zinc-100 outline-none focus:border-emerald-400"
-                          value={state.priceTotalMax ?? ""}
-                          onChange={(e) => {
-                            const v = parseFloat(e.target.value);
-                            setState((prev) => ({
-                              ...prev,
-                              priceTotalMax: Number.isNaN(v) ? null : v,
-                            }));
-                          }}
-                        />
-                        <button
-                          type="button"
-                          aria-label="Limpiar filtro de precio total"
-                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-zinc-700 text-[12px] font-medium text-zinc-300 hover:border-zinc-400 hover:text-zinc-100"
-                          onClick={() =>
-                            setState((prev) => ({
-                              ...prev,
-                              priceTotalMin: null,
-                              priceTotalMax: null,
-                            }))
-                          }
-                        >
-                          ×
-                        </button>
-                      </div>
-
-                      <div className="mt-1 text-[10px] text-zinc-500">
-                        {state.loading && <span>Cargando inmuebles…</span>}
-                        {!state.loading && state.error && (
-                          <span className="text-amber-400">{state.error}</span>
-                        )}
-                        {!state.loading && !state.error && (
-                          <span>
-                            {state.inmuebles.length.toLocaleString()} inmuebles
-                            cargados
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <MapView
-              inmuebles={filteredInmuebles}
-              pricePerM2Min={state.pricePerM2Min}
-              pricePerM2Max={state.pricePerM2Max}
-              highlightPricePerM2Range={histogramSelectedRange}
-            />
+      {/* 4. MOBILE: BOTTOM DRAWER (Glass) */}
+      <div 
+        className={`pointer-events-none absolute inset-0 z-30 bg-slate-950/60 transition-opacity duration-300 md:hidden ${mobilePanel !== "none" ? "opacity-100 pointer-events-auto backdrop-blur-md" : "opacity-0"}`}
+        onClick={() => setMobilePanel("none")}
+      />
+      <div 
+        className={`pointer-events-auto absolute inset-x-0 bottom-0 z-40 transform transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] md:hidden ${mobilePanel !== "none" ? "translate-y-0" : "translate-y-[105%]"}`}
+      >
+        <div className="relative flex max-h-[85vh] w-full flex-col bg-slate-900/90 backdrop-blur-2xl rounded-t-2xl border-t border-white/10 shadow-2xl pb-safe">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-white/10 p-5 mt-2">
+            <h2 className="text-lg font-bold text-white">
+              {mobilePanel === "filters" ? "Filtros" : "Análisis de Datos"}
+            </h2>
+            <button
+              onClick={() => setMobilePanel("none")}
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
           </div>
-        </section>
-      </main>
+
+          <div className="overflow-y-auto p-5 pb-10">
+            <div className="flex flex-col gap-6">
+              {mobilePanel === "filters" && renderFiltersContent()}
+              
+              {mobilePanel === "stats" && (
+                <>
+                  <div className="rounded-2xl border border-white/5 bg-slate-800/50 shadow-inner overflow-hidden">
+                    <StatsPanel inmuebles={filteredInmuebles} barrios={state.barrios} />
+                  </div>
+                  <div className="rounded-2xl border border-white/5 bg-slate-800/50 shadow-inner overflow-hidden p-2">
+                    <PricePerM2Histogram
+                      inmuebles={filteredInmuebles}
+                      selectedRange={histogramSelectedRange}
+                      onBucketClick={(range) => setHistogramSelectedRange(range)}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

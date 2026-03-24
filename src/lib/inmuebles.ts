@@ -82,6 +82,9 @@ function toProperCase(value: string | null): string | null {
 }
 
 export function mapRawToInmueble(raw: RawInmueble): Inmueble | null {
+  const t = (raw.titulo || "").toLowerCase();
+  if (t.includes("vendid") || t.includes("reservad")) return null;
+
   if (raw.latitud == null || raw.longitud == null) {
     return null;
   }
@@ -264,6 +267,9 @@ export type RoblesInmueble = {
 };
 
 export function mapRoblesToInmueble(raw: RoblesInmueble): Inmueble | null {
+  const t = (raw.publication_title || "").toLowerCase();
+  if (t.includes("vendid") || t.includes("reservad")) return null;
+
   const latStr = String(raw.geo_lat || "");
   const lngStr = String(raw.geo_long || "");
   const lat = parseFloat(latStr);

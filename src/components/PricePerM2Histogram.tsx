@@ -94,43 +94,44 @@ export function PricePerM2Histogram({
     title: { text: undefined },
     xAxis: {
       categories,
-      title: { text: "Precio por m² (USD)" },
+      title: { text: undefined },
       labels: {
         style: {
-          color: "#a1a1aa",
-          fontSize: "10px",
+          color: "#94a3b8",
+          fontSize: "9px",
+          fontWeight: "600",
         },
       },
+      gridLineWidth: 0,
+      lineWidth: 0,
     },
     yAxis: {
       min: 0,
-      title: { text: "Cantidad de inmuebles" },
+      title: { text: undefined },
       labels: {
         style: {
-          color: "#a1a1aa",
-          fontSize: "10px",
+          color: "#94a3b8",
+          fontSize: "9px",
         },
       },
-      gridLineColor: "#27272a",
+      gridLineColor: "rgba(255,255,255,0.05)",
     },
     legend: { enabled: false },
     tooltip: {
       shared: false,
+      backgroundColor: "rgba(15, 23, 42, 0.9)",
+      style: { color: "#f8fafc" },
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: "rgba(255,255,255,0.1)",
       pointFormat: "<b>{point.y}</b> inmuebles",
       followPointer: false,
-      followTouchMove: false,
-      positioner: function (labelWidth, labelHeight, point) {
-        const chart = this.chart as Highcharts.Chart;
-        const plotX = (point && point.plotX) || 0;
-        const plotY = (point && point.plotY) || 0;
-        const x = chart.plotLeft + plotX - labelWidth / 2;
-        const y = chart.plotTop + plotY - labelHeight - 8;
-        return { x, y };
-      },
     },
     plotOptions: {
       column: {
         cursor: onBucketClick ? "pointer" : undefined,
+        borderWidth: 0,
+        borderRadius: 4,
         point: {
           events: {
             click: function () {
@@ -160,38 +161,35 @@ export function PricePerM2Histogram({
 
           return {
             y,
-            color: isSelected ? "#22c55e" : "#4b5563",
-            borderColor: isSelected ? "#aaffaa" : "#6b7280",
+            color: isSelected ? "#6366f1" : "rgba(99, 102, 241, 0.2)",
           } as Highcharts.PointOptionsObject;
         }),
-        borderWidth: 1,
-        borderRadius: 1,
       },
     ],
     credits: { enabled: false },
   };
 
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white/80 p-4 text-xs shadow-xl backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/80 md:p-5">
-      <header className="border-b border-zinc-200 pb-3 dark:border-zinc-800">
+    <section className="flex flex-col">
+      <header className="border-b border-white/5 pb-4">
         <div className="flex items-baseline justify-between gap-3">
           <div>
-            <h2 className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
-              Histograma precio / m²
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              Distribución $/M²
             </h2>
           </div>
-          <div className="text-[10px] text-zinc-500 dark:text-zinc-400">
-            {total.toLocaleString()} con datos m²
+          <div className="text-[10px] font-medium text-slate-500">
+            {total.toLocaleString()} muestras
           </div>
         </div>
       </header>
 
-      <div className="mt-4">
+      <div className="mt-5">
         <HighchartsReact highcharts={Highcharts} options={options} />
       </div>
 
-      <footer className="mt-3 text-[10px] text-zinc-500 dark:text-zinc-400">
-        Basado en el valor ponderado del m² (área cubierta + descubierta).
+      <footer className="mt-4 text-[10px] font-medium text-slate-500 italic">
+        * Valor ponderado (Cubierto + Semi-cubierto)
       </footer>
     </section>
   );
