@@ -537,29 +537,29 @@ export default function Home() {
       {/* 3. MOBILE: GLASS HUD */}
       <div className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-between md:hidden">
         {/* Top Header Block */}
-        <div className="pointer-events-auto w-full bg-slate-900/60 p-5 pt-8 backdrop-blur-2xl border-b border-white/10 rounded-b-2xl shadow-lg scrollbar-hide">
-          <h1 className="text-2xl font-bold tracking-tight text-white">
+        <div className="pointer-events-auto w-full bg-slate-900/70 px-6 py-5 pt-12 backdrop-blur-3xl border-b border-white/10 rounded-b-[24px] shadow-2xl scrollbar-hide">
+          <h1 className="text-xl font-bold tracking-tight text-white">
             Atlas <span className="text-indigo-400">Inmuebles</span>
           </h1>
-          <p className="mt-1 text-xs font-medium text-slate-400">
+          <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
             {cityName} · <span className="text-white">{filteredInmuebles.length}</span> Resultados
           </p>
         </div>
 
         {/* Mobile Floating Action Buttons */}
-        <div className="pointer-events-auto absolute bottom-8 right-5 flex flex-col gap-3">
+        <div className="pointer-events-auto absolute bottom-10 right-6 flex flex-col gap-4">
           <button
             onClick={() => setMobilePanel(mobilePanel === "stats" ? "none" : "stats")}
-            className="flex h-14 w-14 items-center justify-center rounded-xl bg-slate-800/80 backdrop-blur-md border border-white/10 text-white shadow-xl transition-transform active:scale-95"
+            className="flex h-14 w-14 items-center justify-center rounded-xl bg-slate-800/90 backdrop-blur-xl border border-white/10 text-white shadow-2xl transition-all active:scale-90"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
           </button>
           
           <button
             onClick={() => setMobilePanel(mobilePanel === "filters" ? "none" : "filters")}
-            className="flex h-14 w-14 items-center justify-center rounded-xl bg-indigo-500 text-white shadow-xl shadow-indigo-500/30 transition-transform active:scale-95 border border-indigo-400"
+            className="flex h-14 w-14 items-center justify-center rounded-xl bg-indigo-500 text-white shadow-2xl shadow-indigo-500/40 transition-all active:scale-90 border border-indigo-400"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
           </button>
         </div>
       </div>
@@ -591,18 +591,14 @@ export default function Home() {
               {mobilePanel === "filters" && renderFiltersContent()}
               
               {mobilePanel === "stats" && (
-                <>
-                  <div className="rounded-2xl border border-white/5 bg-slate-800/50 shadow-inner overflow-hidden">
-                    <StatsPanel inmuebles={filteredInmuebles} barrios={state.barrios} />
-                  </div>
-                  <div className="rounded-2xl border border-white/5 bg-slate-800/50 shadow-inner overflow-hidden p-2">
-                    <PricePerM2Histogram
-                      inmuebles={filteredInmuebles}
-                      selectedRange={histogramSelectedRange}
-                      onBucketClick={(range) => setHistogramSelectedRange(range)}
-                    />
-                  </div>
-                </>
+                <div className="flex flex-col gap-8">
+                  <StatsPanel inmuebles={filteredInmuebles} barrios={state.barrios} />
+                  <PricePerM2Histogram
+                    inmuebles={filteredInmuebles}
+                    selectedRange={histogramSelectedRange}
+                    onBucketClick={(range) => setHistogramSelectedRange(range)}
+                  />
+                </div>
               )}
             </div>
           </div>

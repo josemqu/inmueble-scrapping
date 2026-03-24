@@ -1,3 +1,4 @@
+export {};
 const main = async () => {
   const req = await fetch("https://roblescasascampos.com/propiedades/catalogo", {
     headers: {
