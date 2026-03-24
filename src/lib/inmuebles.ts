@@ -27,6 +27,7 @@ export type Inmueble = {
   priceUsd: number;
   publicUrl: string;
   coverImageUrl: string | null;
+  galleryUrls?: string[];
   // Raw areas
   areaCubiertaM2: number | null;
   areaTerrenoM2: number | null;
@@ -219,4 +220,111 @@ export function aggregateByBarrio(inmuebles: Inmueble[]): BarrioStats[] {
   });
 
   return result;
+}
+
+// ----------------------------------------------------
+// Integración con Robles Casas & Campos (Tokko Broker)
+// ----------------------------------------------------
+
+export type RoblesInmueble = {
+  id: string | number;
+  publication_title: string;
+  description: string;
+  address: string;
+  room_amount: number;
+  bathroom_amount: number;
+  surface: string;
+  is_starred_on_web: boolean;
+  web_price: boolean;
+  slug: string;
+  geo_lat: string | number;
+  geo_long: string | number;
+  property_type?: { id: string; name: string };
+  location?: {
+    id: string;
+    name: string;
+    full_location: string;
+    short_location: string;
+  };
+  operations?: {
+    price: string | number;
+    currency: string;
+    type: string;
+    operation_type_id: number;
+  }[];
+  gallery?: {
+    image_url: string;
+    thumb_url: string;
+    is_front_cover: boolean;
+    order: number;
+    type: string;
+  }[];
+};
+
+export function mapRoblesToInmueble(raw: RoblesInmueble): Inmueble | null {
+  const latStr = String(raw.geo_lat || "");
+  const lngStr = String(raw.geo_long || "");
+  const lat = parseFloat(latStr);
+  const lng = parseFloat(lngStr);
+
+  if (!latStr || !lngStr || isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) {
+    return null;
+  }
+
+  const op = raw.operations?.[0];
+  if (!op) return null;
+
+  // Filtrar si no es Venta
+  const isVenta = op.operation_type_id === 1 || op.type?.toLowerCase() === "venta";
+  if (!isVenta) return null;
+
+  // Si no es USD, por ahora ignoramos si es venta en pesos o no es comparable (se podrían agregar validaciones)
+  if (op.currency !== "USD") return null;
+
+  const price = typeof op.price === "string" ? parseFloat(op.price) : op.price;
+  if (!Number.isFinite(price) || price <= 0) return null;
+
+  const surface = parseFloat(String(raw.surface || ""));
+  const areaM2 = Number.isFinite(surface) && surface > 0 ? surface : null;
+
+  let pricePerM2 = null;
+  if (areaM2 && areaM2 > 20) {
+    pricePerM2 = price / areaM2;
+  }
+
+  let coverImg = null;
+  let galleryUrls: string[] = [];
+  if (raw.gallery && raw.gallery.length > 0) {
+    const front = raw.gallery.find((g) => g.is_front_cover);
+    coverImg = front ? front.image_url : raw.gallery[0].image_url;
+    
+    galleryUrls = [...raw.gallery]
+      .sort((a, b) => (a.order || 0) - (b.order || 0))
+      .map((g) => g.image_url);
+  }
+
+  const numericId = typeof raw.id === "string" ? parseInt(raw.id, 10) : raw.id;
+  // Offset ID para no colisionar con Mardel Inmueble
+  const finalId = Number.isFinite(numericId) ? 800000000 + numericId : 800000000 + Math.floor(Math.random() * 1000000);
+
+  return {
+    id: finalId,
+    title: raw.publication_title || "",
+    lat,
+    lng,
+    priceUsd: price,
+    publicUrl: `https://roblescasascampos.com/propiedades/${raw.slug || ""}`,
+    coverImageUrl: coverImg,
+    galleryUrls,
+    areaCubiertaM2: areaM2,
+    areaTerrenoM2: null,
+    areaM2,
+    pricePerM2,
+    barrio: raw.location?.name || null,
+    calle: toProperCase(raw.address || null) || null,
+    numero: null,
+    ambientes: raw.room_amount || null,
+    createdAt: null,
+    lastUpdate: null,
+  };
 }

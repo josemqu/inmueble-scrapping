@@ -9,6 +9,10 @@ export async function GET(
   const params = await context.params;
   const { id } = params;
 
+  if (parseInt(id, 10) >= 800000000) {
+    return NextResponse.json({ id: Number(id), images: [] }, { status: 200 });
+  }
+
   const url = `${BASE_URL}${encodeURIComponent(id)}`;
 
   try {

@@ -158,9 +158,11 @@ export function MapView({
   const carouselImages =
     activeImages && activeImages.length > 0
       ? activeImages
-      : active?.coverImageUrl
-        ? [active.coverImageUrl]
-        : [];
+      : active?.galleryUrls && active.galleryUrls.length > 0
+        ? active.galleryUrls
+        : active?.coverImageUrl
+          ? [active.coverImageUrl]
+          : [];
 
   const priceValues = inmuebles
     .map((i) => i.pricePerM2)
