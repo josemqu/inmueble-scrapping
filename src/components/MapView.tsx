@@ -6,6 +6,7 @@ import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMap } from "rea
 import { divIcon } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { Inmueble } from "@/lib/inmuebles";
+import { getInmuebleAgeInDays } from "@/lib/inmuebles";
 import { InmueblePopupContent } from "@/components/InmueblePopupContent";
 
 const MAR_DEL_PLATA_CENTER: [number, number] = [-38.005, -57.55];
@@ -74,6 +75,7 @@ function createMarkerIcon(
   baseColor: string,
   inHighlightRange: boolean,
   isActive: boolean,
+  ageInDays: number | null,
 ) {
   const highlightClasses = isActive
     ? "ring-4 ring-indigo-500/50 shadow-[0_0_20px_rgba(99,102,241,0.4)] scale-110 z-50"
@@ -81,9 +83,22 @@ function createMarkerIcon(
       ? "ring-2 ring-emerald-400/60 shadow-[0_0_12px_rgba(52,211,153,0.3)] scale-105"
       : "ring-1 ring-white/20";
 
+  const isRecent = ageInDays != null && ageInDays <= 30;
+  const isVeryRecent = ageInDays != null && ageInDays <= 7;
+
+  const recentIndicator = isRecent
+    ? `<div class="absolute -top-1 -right-1 z-10">
+         <div class="relative flex h-2 w-2">
+           ${isVeryRecent ? '<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>' : ""}
+           <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 border border-white/40"></span>
+         </div>
+       </div>`
+    : "";
+
   return divIcon({
     html: `
       <div class="group relative select-none">
+        ${recentIndicator}
         <div class="inline-flex items-center justify-center rounded-full bg-slate-950/60 ${highlightClasses} shadow-2xl p-0.5 border border-white/10 backdrop-blur-sm">
           <span class="inline-block h-3.5 w-3.5 rounded-full" style="background:${baseColor}"></span>
         </div>
@@ -286,11 +301,14 @@ export function MapView({
             dynamicMax,
           );
 
+          const ageInDays = getInmuebleAgeInDays(i);
+
           const markerIcon = createMarkerIcon(
             i.pricePerM2 ?? null,
             baseColor,
             inHighlightRange,
             activeId === i.id,
+            ageInDays,
           );
 
           return (

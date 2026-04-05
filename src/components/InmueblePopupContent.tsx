@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { Inmueble } from "@/lib/inmuebles";
 import { Building2, Trees } from "lucide-react";
+import { getInmuebleAgeInDays, type Inmueble } from "@/lib/inmuebles";
 
 type InmueblePopupContentProps = {
   inmueble: Inmueble;
@@ -23,14 +23,7 @@ export function InmueblePopupContent({
   const [loadedByUrl, setLoadedByUrl] = useState<Record<string, boolean>>({});
   const inflightRef = useRef<Set<string>>(new Set());
   
-  const ageInDays = useMemo(() => {
-    const date = inmueble.lastUpdate ?? inmueble.createdAt;
-    if (!date) return null;
-    const refDate = date instanceof Date ? date : new Date(date as unknown as string);
-    if (isNaN(refDate.getTime())) return null;
-    const diff = new Date().getTime() - refDate.getTime();
-    return Math.floor(diff / (1000 * 60 * 60 * 24));
-  }, [inmueble.createdAt, inmueble.lastUpdate]);
+  const ageInDays = useMemo(() => getInmuebleAgeInDays(inmueble), [inmueble]);
 
   const markLoaded = (url: string) => {
     setLoadedByUrl((prev) => (prev[url] ? prev : { ...prev, [url]: true }));

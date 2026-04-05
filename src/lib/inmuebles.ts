@@ -54,6 +54,16 @@ export type InmueblesResponse = {
   barrios: BarrioStats[];
 };
 
+export function getInmuebleAgeInDays(inmueble: Inmueble): number | null {
+  const date = inmueble.lastUpdate ?? inmueble.createdAt;
+  if (!date) return null;
+  const refDate =
+    date instanceof Date ? date : new Date(date as unknown as string);
+  if (isNaN(refDate.getTime())) return null;
+  const diff = new Date().getTime() - refDate.getTime();
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
+}
+
 const USD_CURRENCY_ID = 2;
 
 function slugify(value: string): string {
